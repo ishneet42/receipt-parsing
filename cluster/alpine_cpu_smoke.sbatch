@@ -24,6 +24,7 @@ echo "Host: $(hostname)"
 echo "Project root: ${PROJECT_ROOT}"
 
 module purge || true
+module load anaconda
 
 cd "${PROJECT_ROOT}"
 source .venv/bin/activate
