@@ -9,6 +9,8 @@
 #SBATCH --mem=32G
 #SBATCH --time=00:45:00
 #SBATCH --output=slurm-%j.out
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=magu9411@colorado.edu
 
 set -euo pipefail
 
