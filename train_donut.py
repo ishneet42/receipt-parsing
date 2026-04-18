@@ -29,6 +29,10 @@ FIELD_TOKEN_MAP = {
     "sub_total.subtotal_price": "subtotal_price",
     "total.total_price": "total_price",
 }
+TARGET_MODES = {
+    "full": list(FIELD_TOKEN_MAP.keys()),
+    "total_only": ["total.total_price"],
+}
 
 
 def get_device_name() -> str:
@@ -44,17 +48,19 @@ def freeze_module(module: torch.nn.Module) -> None:
         param.requires_grad = False
 
 
-def build_special_tokens(task_start_token: str) -> List[str]:
+def build_special_tokens(task_start_token: str, selected_fields: List[str]) -> List[str]:
     tokens = [task_start_token, "<sep/>"]
-    for token_name in FIELD_TOKEN_MAP.values():
+    for field_name in selected_fields:
+        token_name = FIELD_TOKEN_MAP[field_name]
         tokens.append(f"<s_{token_name}>")
         tokens.append(f"</s_{token_name}>")
     return tokens
 
 
-def serialize_target(task_start_token: str, target_fields: Dict[str, List[str]]) -> str:
+def serialize_target(task_start_token: str, target_fields: Dict[str, List[str]], selected_fields: List[str]) -> str:
     parts = [task_start_token]
-    for field_name, token_name in FIELD_TOKEN_MAP.items():
+    for field_name in selected_fields:
+        token_name = FIELD_TOKEN_MAP[field_name]
         values = target_fields.get(field_name, [])
         joined = "<sep/>".join(values)
         parts.append(f"<s_{token_name}>{joined}</s_{token_name}>")
@@ -62,9 +68,10 @@ def serialize_target(task_start_token: str, target_fields: Dict[str, List[str]])
     return "".join(parts)
 
 
-def token_sequence_to_target_fields(text: str) -> Dict[str, List[str]]:
+def token_sequence_to_target_fields(text: str, selected_fields: List[str]) -> Dict[str, List[str]]:
     parsed: Dict[str, List[str]] = {}
-    for field_name, token_name in FIELD_TOKEN_MAP.items():
+    for field_name in selected_fields:
+        token_name = FIELD_TOKEN_MAP[field_name]
         pattern = rf"<s_{token_name}>(.*?)</s_{token_name}>"
         match = re.search(pattern, text)
         if not match:
@@ -91,13 +98,13 @@ def resize_with_padding(image: Image.Image, target_size: tuple[int, int]) -> Ima
     return canvas
 
 
-def build_training_example(example: Dict[str, Any], task_start_token: str) -> Dict[str, Any]:
+def build_training_example(example: Dict[str, Any], task_start_token: str, selected_fields: List[str]) -> Dict[str, Any]:
     ground_truth = parse_ground_truth(example["ground_truth"])
     target_fields = build_cord_target_fields(ground_truth.get("gt_parse", {}))
 
     return {
         "image": example["image"],
-        "target_text": serialize_target(task_start_token, target_fields),
+        "target_text": serialize_target(task_start_token, target_fields, selected_fields),
     }
 
 
@@ -141,26 +148,32 @@ def load_cord_for_training(
     task_start_token: str,
     train_split: str,
     validation_split: Optional[str],
+    selected_fields: List[str],
 ) -> DatasetDict:
     raw = DatasetDict({"train": load_dataset(CORD_DATASET_NAME, split=train_split)})
     if validation_split:
         raw["validation"] = load_dataset(CORD_DATASET_NAME, split=validation_split)
 
     return raw.map(
-        lambda example: build_training_example(example, task_start_token),
+        lambda example: build_training_example(example, task_start_token, selected_fields),
         remove_columns=["ground_truth"],
         desc="Formatting CORD targets for Donut",
     )
 
 
-def build_model_and_processor(model_name: str, task_start_token: str, freeze_encoder_flag: bool):
+def build_model_and_processor(
+    model_name: str,
+    task_start_token: str,
+    freeze_encoder_flag: bool,
+    selected_fields: List[str],
+):
     processor = DonutProcessor.from_pretrained(model_name, use_fast=False)
     processor.image_processor.do_align_long_axis = False
     processor.image_processor.do_thumbnail = False
     processor.image_processor.do_resize = False
 
     tokenizer = processor.tokenizer
-    tokenizer.add_special_tokens({"additional_special_tokens": build_special_tokens(task_start_token)})
+    tokenizer.add_special_tokens({"additional_special_tokens": build_special_tokens(task_start_token, selected_fields)})
 
     model = VisionEncoderDecoderModel.from_pretrained(model_name)
     model.decoder.resize_token_embeddings(len(tokenizer))
@@ -193,6 +206,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model-name", default=MODEL_NAME)
     parser.add_argument("--task-start-token", default="<s_receipt_parse>")
     parser.add_argument("--profile", choices=["default", "local"], default="default")
+    parser.add_argument("--target-mode", choices=["full", "total_only"], default="full")
     parser.add_argument("--max-target-length", type=int, default=768)
     parser.add_argument("--num-train-epochs", type=int, default=30)
     parser.add_argument("--per-device-train-batch-size", type=int, default=1)
@@ -231,6 +245,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     device_name = get_device_name()
+    selected_fields = TARGET_MODES[args.target_mode]
     print(f"Using device: {device_name}")
     if device_name == "mps":
         print(
@@ -242,12 +257,14 @@ def main() -> None:
         args.model_name,
         args.task_start_token,
         freeze_encoder_flag=args.freeze_encoder,
+        selected_fields=selected_fields,
     )
     model.gradient_checkpointing_enable()
     dataset = load_cord_for_training(
         args.task_start_token,
         train_split=args.train_split,
         validation_split=args.validation_split,
+        selected_fields=selected_fields,
     )
     data_collator = DonutReceiptCollator(
         processor=processor,

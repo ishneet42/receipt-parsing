@@ -6,7 +6,7 @@ import torch
 from PIL import Image
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 
-from train_donut import get_device_name, resize_with_padding, token_sequence_to_target_fields
+from train_donut import TARGET_MODES, get_device_name, resize_with_padding, token_sequence_to_target_fields
 
 
 def parse_args() -> argparse.Namespace:
@@ -14,6 +14,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model-path", type=Path, default=Path("./donut-local-run"))
     parser.add_argument("--image-path", type=Path, required=True)
     parser.add_argument("--task-start-token", default="<s_receipt_parse>")
+    parser.add_argument("--target-mode", choices=["full", "total_only"], default="full")
     parser.add_argument("--target-width", type=int, default=960)
     parser.add_argument("--target-height", type=int, default=720)
     parser.add_argument("--max-length", type=int, default=768)
@@ -24,6 +25,7 @@ def main() -> None:
     args = parse_args()
     device_name = get_device_name()
     device = torch.device("mps" if device_name == "mps" else device_name)
+    selected_fields = TARGET_MODES[args.target_mode]
 
     processor = DonutProcessor.from_pretrained(str(args.model_path), use_fast=False)
     model = VisionEncoderDecoderModel.from_pretrained(str(args.model_path))
@@ -53,7 +55,7 @@ def main() -> None:
         )
 
     prediction = processor.batch_decode(outputs, skip_special_tokens=False)[0]
-    structured = token_sequence_to_target_fields(prediction)
+    structured = token_sequence_to_target_fields(prediction, selected_fields)
 
     print("Raw prediction:")
     print(prediction)
