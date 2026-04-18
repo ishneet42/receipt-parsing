@@ -50,6 +50,18 @@ TARGET_FIELDS = [
     "total.total_price",
 ]
 
+# Hybrid field routing: use LayoutLMv3 for per-item fields (which it wins) and
+# Donut for aggregate key-value fields (which it wins). This composition is
+# motivated by the complementary-strengths finding reported in Section 4.4 of
+# the paper.
+HYBRID_SOURCE = {
+    "menu.nm": "layoutlmv3",
+    "menu.price": "layoutlmv3",
+    "menu.cnt": "layoutlmv3",
+    "sub_total.subtotal_price": "donut",
+    "total.total_price": "donut",
+}
+
 
 # ────────────────────────────────────────────────────────────────────────────
 #  Data
@@ -295,6 +307,65 @@ def line_item_accuracy(
     return tp / total if total else 0.0
 
 
+def build_hybrid_predictions(
+    layoutlmv3_preds: List[Dict[str, List[str]]],
+    donut_preds: List[Dict[str, List[str]]],
+) -> List[Dict[str, List[str]]]:
+    """Compose per-field outputs from each source model according to HYBRID_SOURCE."""
+    hybrid: List[Dict[str, List[str]]] = []
+    for lv3, dn in zip(layoutlmv3_preds, donut_preds):
+        merged = {}
+        for field in TARGET_FIELDS:
+            src = HYBRID_SOURCE.get(field, "layoutlmv3")
+            merged[field] = (lv3 if src == "layoutlmv3" else dn).get(field, [])
+        hybrid.append(merged)
+    return hybrid
+
+
+def parse_number(text: str) -> int:
+    """Parse a CORD-style price string ('60.000', '1,250', '75000') into an int.
+    Strips all non-digit characters; treats '.' / ',' as thousands separators
+    (the CORD convention). Returns 0 if no digits are present."""
+    digits = re.sub(r"[^\d]", "", text or "")
+    return int(digits) if digits else 0
+
+
+def checksum_consistency(
+    all_preds: List[Dict[str, List[str]]],
+    tolerance_frac: float = 0.05,
+) -> Dict[str, float]:
+    """Novel receipt-level metric: fraction of receipts where the sum of
+    predicted menu.price values matches the predicted total.total_price within
+    a tolerance (default 5%). Undefined receipts (no items OR no total) are
+    reported separately."""
+    n_defined = 0
+    n_consistent = 0
+    n_undefined = 0
+    total_abs_err_pct = 0.0
+    for pred in all_preds:
+        prices = pred.get("menu.price", [])
+        total_vals = pred.get("total.total_price", [])
+        if not prices or not total_vals:
+            n_undefined += 1
+            continue
+        items_sum = sum(parse_number(p) for p in prices)
+        total = parse_number(total_vals[0])
+        if items_sum == 0 or total == 0:
+            n_undefined += 1
+            continue
+        n_defined += 1
+        err_pct = abs(items_sum - total) / max(total, 1)
+        total_abs_err_pct += err_pct
+        if err_pct <= tolerance_frac:
+            n_consistent += 1
+    return {
+        "consistency_rate": n_consistent / n_defined if n_defined else 0.0,
+        "mean_abs_error_pct": total_abs_err_pct / n_defined if n_defined else 0.0,
+        "n_defined": n_defined,
+        "n_undefined": n_undefined,
+    }
+
+
 def compute_metrics(
     all_preds: List[Dict[str, List[str]]],
     all_golds: List[Dict[str, List[str]]],
@@ -320,6 +391,7 @@ def compute_metrics(
         out["per_field"][strict_name] = per_field
         out["micro"][strict_name] = {"precision": p, "recall": r, "f1": f}
         out["line_item"][strict_name] = line_item_accuracy(all_preds, all_golds, strict)
+    out["checksum"] = checksum_consistency(all_preds)
     return out
 
 
@@ -382,27 +454,41 @@ def evaluate_model(
 
 def format_table(results: Dict[str, Dict[str, Any]]) -> str:
     labels = list(results.keys())
+    col_width = max(14, 80 // max(len(labels), 1))
     lines = []
     lines.append("\n" + "=" * 78)
     lines.append("CORD TEST SET — ENTITY-LEVEL F1 (NORMALIZED MATCHING)")
     lines.append("=" * 78)
-    header = f"{'Field':32s}" + "".join(f"{l:>22s}" for l in labels)
+    header = f"{'Field':32s}" + "".join(f"{l:>{col_width}s}" for l in labels)
     lines.append(header)
     lines.append("-" * 78)
     for field in TARGET_FIELDS:
         row = f"{field:32s}"
         for l in labels:
             f1 = results[l]["per_field"]["norm"][field]["f1"]
-            row += f"{f1:>22.3f}"
+            row += f"{f1:>{col_width}.3f}"
         lines.append(row)
     lines.append("-" * 78)
     row = f"{'MICRO F1':32s}"
     for l in labels:
-        row += f"{results[l]['micro']['norm']['f1']:>22.3f}"
+        row += f"{results[l]['micro']['norm']['f1']:>{col_width}.3f}"
     lines.append(row)
     row = f"{'Line-item matching accuracy':32s}"
     for l in labels:
-        row += f"{results[l]['line_item']['norm']:>22.3f}"
+        row += f"{results[l]['line_item']['norm']:>{col_width}.3f}"
+    lines.append(row)
+    lines.append("-" * 78)
+    row = f"{'Checksum consistency (±5%)':32s}"
+    for l in labels:
+        row += f"{results[l]['checksum']['consistency_rate']:>{col_width}.3f}"
+    lines.append(row)
+    row = f"{'Mean |sum - total| error %':32s}"
+    for l in labels:
+        row += f"{results[l]['checksum']['mean_abs_error_pct']*100:>{col_width}.1f}"
+    lines.append(row)
+    row = f"{'Receipts with defined checksum':32s}"
+    for l in labels:
+        row += f"{results[l]['checksum']['n_defined']:>{col_width}d}"
     lines.append(row)
     lines.append("=" * 78)
 
@@ -415,16 +501,16 @@ def format_table(results: Dict[str, Dict[str, Any]]) -> str:
         row = f"{field:32s}"
         for l in labels:
             f1 = results[l]["per_field"]["exact"][field]["f1"]
-            row += f"{f1:>22.3f}"
+            row += f"{f1:>{col_width}.3f}"
         lines.append(row)
     lines.append("-" * 78)
     row = f"{'MICRO F1':32s}"
     for l in labels:
-        row += f"{results[l]['micro']['exact']['f1']:>22.3f}"
+        row += f"{results[l]['micro']['exact']['f1']:>{col_width}.3f}"
     lines.append(row)
     row = f"{'Line-item matching accuracy':32s}"
     for l in labels:
-        row += f"{results[l]['line_item']['exact']:>22.3f}"
+        row += f"{results[l]['line_item']['exact']:>{col_width}.3f}"
     lines.append(row)
     lines.append("=" * 78)
     return "\n".join(lines)
@@ -456,13 +542,40 @@ def main() -> None:
     print(f"Evaluating on {len(examples)} examples.")
 
     all_results: Dict[str, Dict[str, Any]] = {}
+    all_predictions: Dict[str, List[Dict[str, List[str]]]] = {}
+    golds: List[Dict[str, List[str]]] = []
     for model_type in args.models:
         print(f"\n─── Running {model_type} ───")
         cache = args.cache_dir / f"{model_type}-{args.split}-{len(examples)}.json"
         preds, golds = evaluate_model(
             model_type, examples, args.layoutlmv3_path, device, cache, args.cached
         )
+        all_predictions[model_type] = preds
         all_results[model_type] = compute_metrics(preds, golds)
+
+    # Compose the hybrid automatically whenever both base models have run.
+    if "layoutlmv3" in all_predictions and "donut" in all_predictions:
+        print("\n─── Composing hybrid (items ← LayoutLMv3, aggregates ← Donut) ───")
+        hybrid_preds = build_hybrid_predictions(
+            all_predictions["layoutlmv3"], all_predictions["donut"]
+        )
+        (args.cache_dir / f"hybrid-{args.split}-{len(examples)}.json").write_text(
+            json.dumps(hybrid_preds, ensure_ascii=False, indent=2)
+        )
+        all_results["hybrid"] = compute_metrics(hybrid_preds, golds)
+
+    # Ceiling reference: how often does CORD's OWN ground truth satisfy the
+    # naive items-sum-equals-total checksum? Receipts often include tax or
+    # service charges between items and total, so gold is the natural ceiling
+    # for this metric.
+    if golds:
+        gold_checksum = checksum_consistency(golds)
+        print(
+            f"\nGround-truth ceiling: checksum consistency (±5%) = "
+            f"{gold_checksum['consistency_rate']:.3f}  "
+            f"(defined on {gold_checksum['n_defined']} receipts, "
+            f"mean |sum-total| error = {gold_checksum['mean_abs_error_pct']*100:.1f}%)"
+        )
 
     print(format_table(all_results))
     args.results_json.write_text(json.dumps(all_results, indent=2))
