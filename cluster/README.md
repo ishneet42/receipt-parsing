@@ -2,6 +2,13 @@
 
 This repo is ready to run on the University of Colorado Alpine cluster with Slurm.
 
+Two model families are available:
+
+- **Donut** training scripts live in `cluster/donut/`
+- **LayoutLMv3** training scripts live in `cluster/layoutlmv3/`
+
+Substitute the appropriate subfolder in the submission commands below.
+
 ## 1. Put the repo on Alpine
 
 Use a persistent directory on the login node. This path is simple and predictable:
@@ -67,7 +74,7 @@ Make sure you are in the repo root:
 ```bash
 cd ~/projects/receipt-parsing
 mkdir -p logs outputs
-sbatch --account=<YOUR_ALLOCATION> cluster/alpine_smoke.sbatch
+sbatch --account=<YOUR_ALLOCATION> cluster/donut/alpine_smoke.sbatch
 ```
 
 Why this job first:
@@ -97,7 +104,7 @@ outputs/smoke/<JOB_ID>/
 
 ```bash
 cd ~/projects/receipt-parsing
-sbatch --account=<YOUR_ALLOCATION> cluster/alpine_full.sbatch
+sbatch --account=<YOUR_ALLOCATION> cluster/donut/alpine_full.sbatch
 ```
 
 This job uses:
@@ -149,9 +156,9 @@ scancel <JOB_ID>
 
 1. Copy or clone the repo into `~/projects/receipt-parsing`
 2. Run `bash cluster/setup_alpine_env.sh`
-3. Submit the smoke job with `sbatch --account=<YOUR_ALLOCATION> cluster/alpine_smoke.sbatch`
+3. Submit the smoke job with `sbatch --account=<YOUR_ALLOCATION> cluster/donut/alpine_smoke.sbatch`
 4. Confirm the smoke log shows training progress
-5. Submit the full job with `sbatch --account=<YOUR_ALLOCATION> cluster/alpine_full.sbatch`
+5. Submit the full job with `sbatch --account=<YOUR_ALLOCATION> cluster/donut/alpine_full.sbatch`
 
 ## Notes
 
