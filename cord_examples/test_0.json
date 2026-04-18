@@ -1,0 +1,17 @@
+{
+  "menu.nm": [
+    "-TICKET CP"
+  ],
+  "menu.price": [
+    "60.000"
+  ],
+  "menu.cnt": [
+    "2"
+  ],
+  "sub_total.subtotal_price": [
+    "60.000"
+  ],
+  "total.total_price": [
+    "60.000"
+  ]
+}
