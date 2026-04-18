@@ -8,3 +8,8 @@ torch>=2.2.0
 Pillow>=10.0.0
 sentencepiece>=0.2.0
 protobuf>=4.25.0
+# LayoutLMv3 needs numpy + the LayoutLMv3 image processor stack.
+numpy>=1.24
+# pytesseract drives the Tesseract binary for predict_layoutlmv3.py.
+# Install Tesseract separately: macOS `brew install tesseract`, Ubuntu `apt-get install tesseract-ocr`.
+pytesseract>=0.3.10

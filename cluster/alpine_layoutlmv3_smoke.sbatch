@@ -1,0 +1,54 @@
+#!/bin/bash
+#SBATCH --job-name=layoutlmv3-smoke
+#SBATCH --partition=aa100
+#SBATCH --qos=normal
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --gres=gpu:1
+#SBATCH --mem=32G
+#SBATCH --time=00:45:00
+#SBATCH --output=slurm-%j.out
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=ishneetkaur.chadha@colorado.edu
+
+set -euo pipefail
+
+PROJECT_ROOT="${SLURM_SUBMIT_DIR}"
+VENV_DIR="${VENV_DIR:-/scratch/alpine/$USER/receipt-parsing/.venv}"
+RUN_DIR="${PROJECT_ROOT}/outputs/layoutlmv3-smoke/${SLURM_JOB_ID}"
+RUN_LOG="${PROJECT_ROOT}/logs/layoutlmv3-smoke-${SLURM_JOB_ID}.log"
+
+mkdir -p "${PROJECT_ROOT}/logs" "${RUN_DIR}"
+exec > >(tee -a "${RUN_LOG}") 2>&1
+
+echo "Job started at $(date)"
+echo "Job ID: ${SLURM_JOB_ID}"
+echo "Host: $(hostname)"
+echo "Project root: ${PROJECT_ROOT}"
+
+module purge || true
+module load anaconda
+
+cd "${PROJECT_ROOT}"
+unset CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_EXE CONDA_PROMPT_MODIFIER CONDA_PYTHON_EXE CONDA_SHLVL _CE_CONDA _CE_M
+source "${VENV_DIR}/bin/activate"
+
+export HF_HOME="/scratch/alpine/$USER/receipt-parsing/.hf-cache"
+export TOKENIZERS_PARALLELISM=false
+
+nvidia-smi || true
+
+python train_layoutlmv3.py \
+  --output-dir "${RUN_DIR}" \
+  --num-train-epochs 1 \
+  --max-steps 20 \
+  --per-device-train-batch-size 2 \
+  --per-device-eval-batch-size 2 \
+  --gradient-accumulation-steps 1 \
+  --logging-steps 5 \
+  --eval-strategy no \
+  --save-strategy steps \
+  --save-total-limit 1
+
+echo "Job finished at $(date)"
