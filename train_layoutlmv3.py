@@ -117,15 +117,25 @@ def extract_word_level_records(
     for line in ground_truth.get("valid_line", []):
         category = line.get("category")
         is_target = category in selected_set
-        for position, word in enumerate(line.get("words", [])):
+
+        # Track the B/I position separately from the word index so that key
+        # words (is_key == 1) consume no position — the first *value* word gets
+        # the B- tag, not the key.
+        value_position = 0
+        for word in line.get("words", []):
             text = (word.get("text") or "").strip()
             if not text:
                 continue
             words.append(text)
             boxes.append(normalize_bbox(quad_to_bbox(word["quad"]), width, height))
-            if is_target:
-                bio_labels.append(f"{'B' if position == 0 else 'I'}-{category}")
+
+            is_key = bool(word.get("is_key", 0))
+            if is_target and not is_key:
+                bio_labels.append(f"{'B' if value_position == 0 else 'I'}-{category}")
+                value_position += 1
             else:
+                # Key words ("TOTAL", "Subtotal", etc.) and non-target lines
+                # are treated as background so they do not pollute the value span.
                 bio_labels.append(OUTSIDE_LABEL)
 
     return image, words, boxes, bio_labels

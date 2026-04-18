@@ -10,9 +10,7 @@ venv/
 .DS_Store
 
 # HuggingFace / model artifacts (too big for git)
-layoutlmv3-overnight/
-layoutlmv3-local-smoke/
-layoutlmv3-local-full/
+layoutlmv3-*/
 donut-receipt-model/
 donut-local-run/
 *.safetensors
@@ -36,5 +34,6 @@ nohup.out
 # Typst cache
 .typst-cache/
 
-# Evaluation logs
+# Evaluation / training logs
 eval.log
+retrain.log
