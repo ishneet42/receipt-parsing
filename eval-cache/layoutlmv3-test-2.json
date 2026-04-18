@@ -1,0 +1,36 @@
+[
+  {
+    "menu.nm": [
+      "-TICKET CP"
+    ],
+    "menu.price": [
+      "60.000"
+    ],
+    "menu.cnt": [
+      "2"
+    ],
+    "sub_total.subtotal_price": [
+      "Subtotal 60.000"
+    ],
+    "total.total_price": [
+      "TOTAL 60.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "J.STB PROMO",
+      "Y.B.BAT",
+      "Y.BASO PROM"
+    ],
+    "menu.price": [
+      "17500",
+      "46000",
+      "27500"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "TOTAL 91000"
+    ]
+  }
+]

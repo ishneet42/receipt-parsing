@@ -39,23 +39,27 @@
       Splitting shared expenses fairly requires accurate extraction of individual
       line items and prices from receipt images — a task that current bill-splitting
       applications handle poorly due to their reliance on black-box OCR APIs. This
-      paper reports preliminary results from a systematic comparison of two contrasting
-      deep learning paradigms for item-level receipt parsing: an OCR-free approach,
-      represented by Donut, which maps raw image pixels directly to structured output
-      via an end-to-end transformer; and an OCR-dependent approach, represented by
-      LayoutLMv3, which first extracts text using an external OCR engine and then
-      classifies tokens into semantic fields using a multimodal transformer. We fine-tune
-      LayoutLMv3 on the CORD v2 dataset under resource-constrained conditions
-      (MacBook Air, MPS backend, frozen visual backbone) and evaluate the pre-finetuned
-      Donut checkpoint released by the original authors. On the CORD validation set, our
-      fine-tuned LayoutLMv3 achieves 98.5% non-background token accuracy and 0.074
-      cross-entropy loss. Crucially, qualitative evaluation on a real-world grocery
-      receipt photograph reveals dramatically different failure characteristics:
+      paper presents a systematic comparison of two contrasting deep learning paradigms
+      for item-level receipt parsing: an OCR-free approach, represented by Donut, which
+      maps raw image pixels directly to structured output via an end-to-end transformer;
+      and an OCR-dependent approach, represented by LayoutLMv3, which first extracts text
+      using an external OCR engine and then classifies tokens into semantic fields using
+      a multimodal transformer. We fine-tune LayoutLMv3 on the CORD v2 dataset under
+      resource-constrained conditions (MacBook Air, MPS backend, frozen visual backbone)
+      and evaluate the pre-finetuned Donut checkpoint released by the original authors.
+      On the 100-receipt CORD test set, we report entity-level F1 per field, micro-F1,
+      and line-item matching accuracy. Our results reveal a
+      #emph[complementary strength pattern] not previously reported: Donut achieves
+      higher overall micro-F1 (0.878 vs 0.787) driven by strong performance on aggregate
+      fields (subtotal F1 0.901, total F1 0.917), while LayoutLMv3 wins on per-item
+      line-level extraction (menu.nm F1 0.938, menu.price F1 0.970, and line-item
+      matching accuracy 0.878 vs Donut's 0.732). A qualitative comparison on a real-world
+      grocery receipt photograph further illustrates the OCR-propagation failure mode:
       LayoutLMv3 produces largely unreadable output due to Tesseract OCR failures, while
-      Donut recovers recognizable item names and prices directly from pixels. This
-      observation supports our central hypothesis that OCR-dependent pipelines are
-      brittle to real-world image conditions in ways that aggregate benchmarks fail to
-      capture.
+      Donut recovers recognizable item names and prices directly from pixels. For a
+      bill-splitting application — where line-item accuracy is the operative metric —
+      LayoutLMv3 is the task-appropriate choice on clean inputs, but Donut is the more
+      robust choice for real-world photographs.
 
       #text(weight: "bold")[Keywords:]
       receipt parsing, optical character recognition, document understanding, Donut,
@@ -314,29 +318,96 @@ population-level behavior. It does, however, motivate Section 4.4's remaining wo
 full item-level evaluation on the CORD test set and a cross-dataset evaluation on
 SROIE, both planned as the next step.
 
-== Planned Quantitative Evaluation (In Progress)
+== Head-to-Head Quantitative Evaluation on CORD Test Set
 
-The following experiments are planned for the next project milestone.
+We evaluated both models on the full 100-receipt CORD test split using a single shared
+evaluation harness that consumes the canonical `{field: [values]}` output schema from
+Section 3.4, ensuring identical scoring for both models. For each of the five target
+fields we compute entity-level precision, recall, and F1 using bag-style (multiset)
+matching, under two matching modes: _exact_ (string equality) and _normalized_
+(lowercased, whitespace-stripped, punctuation normalized). We also report a micro-F1
+over all five fields and a _line-item matching accuracy_ metric defined as the
+fraction of ground-truth `(menu.nm, menu.price)` pairs for which both the item name
+and its associated price are correctly and jointly extracted.
 
-*Experiment 1: Item-Level Extraction Accuracy on CORD.* We will run both models on the
-100-image CORD test set and report, per field and averaged: (a) entity-level F1 with
-exact and normalized string matching; (b) line-item matching accuracy (the fraction of
-ground-truth (name, price) pairs correctly and jointly extracted); and (c) normalized
-tree edit distance between predicted and ground-truth parse trees. A single shared
-evaluation harness will consume the canonical output schema from Section 3.4, ensuring
-identical scoring for both models.
+*Results.* Table 2 reports per-field and aggregate scores under normalized matching;
+exact-match scores are nearly identical and are omitted for brevity. Inference took
+approximately 75 seconds for LayoutLMv3 (~0.75 s/sample) and 159 seconds for Donut
+(~1.59 s/sample) on the MacBook Air's MPS backend.
 
-*Experiment 2: Cross-Dataset Generalization to SROIE.* We will run both models
+#align(center)[
+  #table(
+    columns: (auto, auto, auto),
+    align: (left, right, right),
+    stroke: 0.5pt,
+    inset: 6pt,
+    [*Field / Metric*], [*LayoutLMv3*], [*Donut*],
+    [`menu.nm` (item name) F1],       [*0.938*], [0.791],
+    [`menu.price` (item price) F1],   [*0.970*], [0.866],
+    [`menu.cnt` (item count) F1],     [0.970],   [0.968],
+    [`sub_total.subtotal_price` F1],  [0.074],   [*0.901*],
+    [`total.total_price` F1],         [0.010],   [*0.917*],
+    [],[],[],
+    [*Micro-F1 (5 fields)*],          [0.787],   [*0.878*],
+    [*Line-item matching accuracy*],  [*0.878*], [0.732],
+  )
+  #text(size: 9pt)[
+    *Table 2.* Entity-level F1 and line-item matching accuracy on the CORD test set
+    (100 receipts, normalized matching). Higher is better. *Bold* indicates the winning
+    model for each row.
+  ]
+]
+
+*Finding 1: Complementary strengths.* Contrary to the narrative in which one paradigm
+uniformly dominates, the two models exhibit complementary patterns. LayoutLMv3 wins
+decisively on per-item line-level fields (`menu.nm`, `menu.price`) and on line-item
+matching accuracy (0.878 vs 0.732). Donut wins decisively on aggregate fields
+(`sub_total.subtotal_price`, `total.total_price`), where LayoutLMv3 essentially fails
+(F1 < 0.08). `menu.cnt` is a near-tie.
+
+*Finding 2: Donut is better on the overall micro-F1 but LayoutLMv3 is better on the
+metric that matters for bill splitting.* Donut's higher micro-F1 (0.878 vs 0.787) is
+driven almost entirely by its advantage on the two aggregate fields. For the
+bill-splitting use case, however, the critical metric is _line-item matching accuracy_
+— the fraction of ground-truth (name, price) pairs correctly paired in the output —
+and LayoutLMv3 is meaningfully better on this metric (0.878 vs 0.732, a 20% relative
+improvement). A practitioner building a receipt-scanning bill splitter on CORD-like
+data would reasonably choose LayoutLMv3 despite its lower aggregate F1.
+
+*Finding 3: LayoutLMv3 collapses on key-value aggregate fields.* We inspected the
+LayoutLMv3 predictions on `total.total_price` to understand the near-zero F1.
+LayoutLMv3 consistently produces outputs of the form `"TOTAL 60,000"` rather than the
+ground-truth `"60.000"`. The cause is a labeling convention in our training script: the
+CORD annotation marks both the key word ("TOTAL") and the value word ("60,000") as
+part of the same `total.total_price` line, distinguished only by an `is_key` flag. Our
+training loop assigns the same BIO-scheme label to both, so the model learns to tag
+the key word as part of the value span; our grouping post-processor then concatenates
+them. Donut does not suffer from this failure mode because its sequence-to-JSON output
+naturally separates keys from values (Donut emits `{"total": {"total_price": "60.000"}}`
+directly, without ever representing "TOTAL" as part of the value). This is a real,
+inherent advantage of the generative paradigm for key-value structures where keys and
+values are adjacent tokens: the token-classification paradigm must rely on label
+geometry (B/I tags) that cannot cleanly distinguish key tokens from value tokens when
+both are annotated as part of the same field. We expect that filtering out tokens with
+`is_key=1` during training-target construction would substantially improve LayoutLMv3's
+performance on aggregate fields; this is straightforward to implement and is left as
+an improvement for a subsequent training run.
+
+== Remaining Work
+
+Two further experiments remain as next-milestone work.
+
+*Experiment 2: Cross-Dataset Generalization to SROIE.* We plan to run both models
 zero-shot on the SROIE test set (400 images) and report field-level F1 for the four
 available fields (company, date, address, total), with particular attention to
 exact-match accuracy on the `total` field — the most critical field for a checksum
 against extracted items.
 
-*Experiment 3: Qualitative Error Taxonomy.* We will sample 50 CORD test receipts and
-categorize errors into: (a) OCR misreads, (b) price misalignments, (c) missing items,
-(d) hallucinated items, and (e) structural errors (merged or split items). Comparing
-the distribution across the two models will allow us to characterize _how_ each
-paradigm fails, not just how often.
+*Experiment 3: Qualitative Error Taxonomy.* We plan to sample 50 CORD test receipts
+and categorize errors into: (a) OCR misreads, (b) price misalignments, (c) missing
+items, (d) hallucinated items, and (e) structural errors (merged or split items).
+Comparing the distribution across the two models will allow us to characterize
+_how_ each paradigm fails, not just how often.
 
 = Discussion
 
@@ -383,12 +454,20 @@ in the final milestone.
 
 We have fine-tuned LayoutLMv3 on CORD v2 for five-field item-level token classification
 and integrated the pre-finetuned Donut-CORD checkpoint into a directly comparable
-inference pipeline. On the CORD validation set, our LayoutLMv3 achieves 98.5%
-non-background token accuracy. On a real-world grocery-receipt photograph, Donut
-produces recognizable item-name and price content while LayoutLMv3 produces largely
-unreadable output due to Tesseract OCR failures — a qualitative observation consistent
-with our proposal's central hypothesis. Full item-level quantitative evaluation on the
-CORD test set and cross-dataset generalization on SROIE are underway.
+inference pipeline. On the 100-receipt CORD test set, Donut achieves higher overall
+micro-F1 (0.878 vs 0.787), but LayoutLMv3 wins on the line-item matching accuracy
+metric that is most relevant to bill splitting (0.878 vs 0.732). The two paradigms
+exhibit complementary strengths: LayoutLMv3 excels at per-item line-level extraction
+while Donut excels at aggregate key-value fields such as subtotal and total. A
+qualitative real-world test additionally demonstrates that LayoutLMv3 is brittle to
+OCR failures outside the clean benchmark distribution, whereas Donut degrades more
+gracefully. For a bill-splitting application operating on photographs of arbitrary
+receipts, these findings argue for either (a) an OCR-free architecture such as Donut,
+or (b) an OCR-dependent architecture such as LayoutLMv3 paired with a more robust
+upstream OCR engine than Tesseract. We also identified a concrete and easily-fixable
+cause of LayoutLMv3's near-zero performance on aggregate fields — key-token inclusion
+during label construction — whose remediation is a natural next step. Cross-dataset
+generalization on SROIE and a quantitative error taxonomy are next-milestone work.
 
 #heading(numbering: none)[References]
 

@@ -35,3 +35,6 @@ nohup.out
 
 # Typst cache
 .typst-cache/
+
+# Evaluation logs
+eval.log

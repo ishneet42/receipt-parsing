@@ -1,0 +1,2053 @@
+[
+  {
+    "menu.nm": [
+      "- TICKET CP"
+    ],
+    "menu.price": [
+      "60,000"
+    ],
+    "menu.cnt": [
+      "2"
+    ],
+    "sub_total.subtotal_price": [
+      "-60.000"
+    ],
+    "total.total_price": [
+      "60.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "J.STB PROMO",
+      "Y.B.BAT",
+      "Y.BASO PROM"
+    ],
+    "menu.price": [
+      "17500",
+      "46000",
+      "27500"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "91000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "DOSMINE MT ( )",
+      "COCONUT JELLY ( L )"
+    ],
+    "menu.price": [
+      "24,000",
+      "4,000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "28,000"
+    ],
+    "total.total_price": [
+      "28,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "DONAT GULA"
+    ],
+    "menu.price": [
+      "11,000"
+    ],
+    "menu.cnt": [
+      "1X"
+    ],
+    "sub_total.subtotal_price": [
+      "11,000"
+    ],
+    "total.total_price": [
+      "11,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "ICE BLAOKCOFFE",
+      "AVOCAD COFFEE",
+      "Ode CHIKEN KATSU FF"
+    ],
+    "menu.price": [
+      "82,000",
+      "61,000",
+      "51,000"
+    ],
+    "menu.cnt": [
+      "2",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "194,000"
+    ],
+    "total.total_price": [
+      "174.600"
+    ]
+  },
+  {
+    "menu.nm": [
+      "TRAD KY TOAST CARTE"
+    ],
+    "menu.price": [
+      "28.182"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [
+      "28.182"
+    ],
+    "total.total_price": [
+      "31.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "EGG TART",
+      "CHOCO CUSTARD PASTRY",
+      "REDBEAN BREAD"
+    ],
+    "menu.price": [
+      "13,000",
+      "24,000",
+      "9,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "2",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "46,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Kupon 15",
+      "ADD CHICKEN BOX"
+    ],
+    "menu.price": [
+      "100,000",
+      "909"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [
+      "100,909"
+    ],
+    "total.total_price": [
+      "111,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "[REG] BLACK SAKURA"
+    ],
+    "menu.price": [
+      "45,455"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "45,455"
+    ],
+    "total.total_price": [
+      "50,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Bumbu Kaldu Ayam"
+    ],
+    "menu.price": [
+      "36000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "36000"
+    ],
+    "total.total_price": []
+  },
+  {
+    "menu.nm": [
+      "CINNAMON SUGAR"
+    ],
+    "menu.price": [
+      "17,000"
+    ],
+    "menu.cnt": [
+      "1 x"
+    ],
+    "sub_total.subtotal_price": [
+      "17,000"
+    ],
+    "total.total_price": [
+      "17,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "BANABERRY FRESH CREAM CAK"
+    ],
+    "menu.price": [
+      "230,000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "230,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "0571-1854 BLUS WANITA",
+      "1002-0060 SHOPPING BAG"
+    ],
+    "menu.price": [
+      "120,000",
+      "0"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "120,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "BASO KUAH",
+      "A.MINERAL GELAS"
+    ],
+    "menu.price": [
+      "43.636",
+      "3.000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "46.636"
+    ],
+    "total.total_price": [
+      "51,300"
+    ]
+  },
+  {
+    "menu.nm": [
+      "RedVelvet Cheese Slc",
+      "Chicken Baked Rice",
+      "Fish n Chips",
+      "Mushroom Soup",
+      "Champile",
+      "Iced tea"
+    ],
+    "menu.price": [
+      "38,000",
+      "55,000",
+      "65,000",
+      "35,000",
+      "25,000",
+      "20,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "238,000"
+    ],
+    "total.total_price": [
+      "281,435"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Lemon Tea (L)",
+      "Caramel Small"
+    ],
+    "menu.price": [
+      "25.000",
+      "38.000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "63.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "LONGAN",
+      "ROASTED ALMOND",
+      "NANGGO",
+      "MINERAL WATER (bundling) 5k"
+    ],
+    "menu.price": [
+      "0",
+      "0",
+      "0",
+      "4,545"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "63,636"
+    ],
+    "total.total_price": [
+      "70,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Goblin's Mace",
+      "Croquette",
+      "Cheese",
+      "Croquette",
+      "Take Away"
+    ],
+    "menu.price": [
+      "25,000",
+      "14,000",
+      "14,000",
+      "0",
+      "0"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "91,000"
+    ],
+    "total.total_price": [
+      "Rp. 91,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Propolis Cair"
+    ],
+    "menu.price": [
+      "156000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "156000"
+    ],
+    "total.total_price": []
+  },
+  {
+    "menu.nm": [
+      "AMBUSH DBL CHS",
+      "AMBUSH CHS BUR"
+    ],
+    "menu.price": [
+      "60000",
+      "10000"
+    ],
+    "menu.cnt": [
+      "4",
+      "10"
+    ],
+    "sub_total.subtotal_price": [
+      "100000"
+    ],
+    "total.total_price": [
+      "176000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "cashew nuts chkn",
+      "garlic pepper beef",
+      "red curry beef",
+      "phad thai",
+      "steamed rice"
+    ],
+    "menu.price": [
+      "64.500",
+      "79.500",
+      "69.500",
+      "64.500",
+      "47,600"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "4"
+    ],
+    "sub_total.subtotal_price": [
+      "325,600"
+    ],
+    "total.total_price": [
+      "377,859"
+    ]
+  },
+  {
+    "menu.nm": [
+      "NASI GOR SFD TLR",
+      "ES TEH TAWAR"
+    ],
+    "menu.price": [
+      "Rp 35.000",
+      "Rp 3.000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "Rp 38.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "[MD] SOFT STEAMED CHEESEC",
+      "[MD] SOFT STEAMED CHOCOCA"
+    ],
+    "menu.price": [
+      "20,000",
+      "20,000"
+    ],
+    "menu.cnt": [
+      "2",
+      "2"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "40,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "TWIST DONUT",
+      "REDBEAN BREAD"
+    ],
+    "menu.price": [
+      "54,000",
+      "9,000"
+    ],
+    "menu.cnt": [
+      "6",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "63,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "5001-Corn Flakes Cookies",
+      "5003-Chokoreto Cookies",
+      "6002-Plastic Bag Medium"
+    ],
+    "menu.price": [
+      "Rp. 56.000",
+      "Rp. 62.000",
+      "Rp. 0"
+    ],
+    "menu.cnt": [
+      "x1]",
+      "x1]",
+      "x1]"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "Rp.118.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "TWIST STRAWBERRY DONUT",
+      "TLJ CROQUETTE",
+      "POTATO PEPPER BAGEL"
+    ],
+    "menu.price": [
+      "10,000",
+      "17,000",
+      "16,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "43,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Cap Cay",
+      "esar",
+      "Minuman",
+      "Lain-lain"
+    ],
+    "menu.price": [
+      "65.000",
+      "65.000",
+      "0.000",
+      "65.000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "2",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "Rp 138.000"
+    ],
+    "total.total_price": [
+      "Rp 138.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "PKT AYAM",
+      "GULAI OTAK"
+    ],
+    "menu.price": [
+      "33,000",
+      "23,000"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [
+      "56,000"
+    ],
+    "total.total_price": [
+      "61,600"
+    ]
+  },
+  {
+    "menu.nm": [
+      "SAMGYOPSAL",
+      "SUL LUNG TANG",
+      "MAKOLI"
+    ],
+    "menu.price": [
+      "194,000",
+      "75,000",
+      "100,000"
+    ],
+    "menu.cnt": [
+      "2",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "369,000"
+    ],
+    "total.total_price": [
+      "426,195"
+    ]
+  },
+  {
+    "menu.nm": [
+      "COLD OCHA",
+      "BCA PROMO",
+      "SKEWERED SHUMAI",
+      "SKEWERED TOFU ROLL",
+      "EBI TEMPURA",
+      "KITSUNE UDON (KIDS)"
+    ],
+    "menu.price": [
+      "10,909",
+      "54,455",
+      "12,727",
+      "12,727",
+      "13,636",
+      "28,182"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "132,636"
+    ],
+    "total.total_price": [
+      "145,900"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Kupon 3"
+    ],
+    "menu.price": [
+      "28,636"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [
+      "28,636"
+    ],
+    "total.total_price": [
+      "31,500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "SALMON PESTO",
+      "SALMON PESTO"
+    ],
+    "menu.price": [
+      "85,500",
+      "85,500"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "85,500"
+    ],
+    "total.total_price": [
+      "113,886"
+    ]
+  },
+  {
+    "menu.nm": [
+      "THAI ICED GREEN TEA"
+    ],
+    "menu.price": [
+      "24.000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "24.000"
+    ],
+    "total.total_price": [
+      "24.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "GRILLED BABY POTATO ( R",
+      "HOT TUNA",
+      "HOT TUNA"
+    ],
+    "menu.price": [
+      "50,500",
+      "67,000",
+      "67,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "117,500"
+    ],
+    "total.total_price": [
+      "148,127"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Ash Chick Sambal Matah",
+      "Jamur Goreng"
+    ],
+    "menu.price": [
+      "75.000",
+      "10,000"
+    ],
+    "menu.cnt": [
+      "5",
+      "2"
+    ],
+    "sub_total.subtotal_price": [
+      "85.000"
+    ],
+    "total.total_price": [
+      "93.500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "TWIST DONUT",
+      "BANANA DONUT",
+      "CREAMCHEESE BREAD",
+      "FRANKFRUT SAUSAGE ROLL"
+    ],
+    "menu.price": [
+      "18,000",
+      "11,000",
+      "13,000",
+      "12,000"
+    ],
+    "menu.cnt": [
+      "2",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "54,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "XXL Crspy Chicken"
+    ],
+    "menu.price": [
+      "40,000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "40,000"
+    ],
+    "total.total_price": [
+      "40,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Popcorn Salt (S)"
+    ],
+    "menu.price": [
+      "20.000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "20.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "XLB Org Pork 10x",
+      "Sicito Babi",
+      "Hotplate Tahu",
+      "DF Fish Filiet Garic",
+      "LM Pork Belly",
+      "Siew Mai",
+      "Kwan Yin Cup",
+      "Herbal Jelly",
+      "Onde- Onde"
+    ],
+    "menu.price": [
+      "78,000",
+      "65,000",
+      "58,000",
+      "108,000",
+      "88,000",
+      "38,800",
+      "50,000",
+      "38,000",
+      "38,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "5",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "561,800"
+    ],
+    "total.total_price": [
+      "664,329"
+    ]
+  },
+  {
+    "menu.nm": [],
+    "menu.price": [],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [],
+    "total.total_price": []
+  },
+  {
+    "menu.nm": [
+      "Shack Lestari A11",
+      "Bakery Aneka Sisir banana, Pizza,yoko,Mar"
+    ],
+    "menu.price": [
+      "54,000",
+      "14,000"
+    ],
+    "menu.cnt": [
+      "2",
+      "2"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "68.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Chicken Maryland",
+      "Capoucino (Hot/Iced)",
+      "Ngag Lychee Juice",
+      "Cafe Latte",
+      "Hot Chocolate Marshmallo",
+      "Chicken Cesar Salad",
+      "Mineral Water",
+      "Mineral Water",
+      "Lychee/Beach/Lemon/ Mango",
+      "Chicken Mary land"
+    ],
+    "menu.price": [
+      "47619.00",
+      "30303.00",
+      "34632.00.",
+      "30303.00",
+      "30303.00",
+      "43290.00",
+      "12987.00",
+      "12987.00",
+      "25,74.00",
+      "47619.000"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [
+      "316017.00"
+    ],
+    "total.total_price": [
+      "365000.00"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Chicken HCC. 1Pcs"
+    ],
+    "menu.price": [
+      "15.000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "15,000"
+    ],
+    "total.total_price": [
+      "16,500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Cheese Tart"
+    ],
+    "menu.price": [
+      "165000.00"
+    ],
+    "menu.cnt": [
+      "6"
+    ],
+    "sub_total.subtotal_price": [
+      "Rp 165000.00"
+    ],
+    "total.total_price": [
+      "Rp 165000.00"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Combo 1"
+    ],
+    "menu.price": [
+      "30,000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "30.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Lemon Tea (L).",
+      "Mike & Ike Original",
+      "Mike & Berry",
+      "Roti Keju Manis."
+    ],
+    "menu.price": [
+      "25.000",
+      "28.000",
+      "28.000",
+      "7.000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "88.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "S-Bubble Milk Tea",
+      "S-Caramel Milk Tea"
+    ],
+    "menu.price": [
+      "20,000",
+      "20,000"
+    ],
+    "menu.cnt": [
+      "1X",
+      "1X"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "40,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "COPIA 1 /GB",
+      "PLASTIC BAG RED CENTRAL SI",
+      "910054260074"
+    ],
+    "menu.price": [
+      "45,000.00",
+      "0.00",
+      "18,000.00"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "63,000.00"
+    ]
+  },
+  {
+    "menu.nm": [
+      "S-Hazelnut KOI Cafe"
+    ],
+    "menu.price": [
+      "25,000"
+    ],
+    "menu.cnt": [
+      "1X"
+    ],
+    "sub_total.subtotal_price": [
+      "22,728"
+    ],
+    "total.total_price": [
+      "25,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Ptgs Eggtart",
+      "Choco Melt"
+    ],
+    "menu.price": [
+      "12,000",
+      "11,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "23,000"
+    ],
+    "total.total_price": [
+      "23,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "SpcPrice Caudburry"
+    ],
+    "menu.price": [
+      "17,727"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "17,727"
+    ],
+    "total.total_price": [
+      "19,500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "tral: Ciston",
+      "(TA) BIHUN GORENG SEAFOOD",
+      "(TA) KWETIAW SEAFOOD",
+      "SIRAM"
+    ],
+    "menu.price": [
+      "{'unitprice': '40,456', 'cnt': '1'}",
+      "40,456",
+      "42,274",
+      "55,456"
+    ],
+    "menu.cnt": [
+      "4",
+      "1",
+      "1",
+      "2"
+    ],
+    "sub_total.subtotal_price": [
+      "303,646"
+    ],
+    "total.total_price": [
+      "334,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "THAI ICED TEA",
+      "THAI ICED TEA"
+    ],
+    "menu.price": [
+      "20.000",
+      "20.000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "40.000"
+    ],
+    "total.total_price": [
+      "40.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Pecel Komplit + Nasi",
+      "SOTO KUDUS",
+      "Mineral Water"
+    ],
+    "menu.price": [
+      "42.000",
+      "47.000",
+      "18.000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "2"
+    ],
+    "sub_total.subtotal_price": [
+      "107.000"
+    ],
+    "total.total_price": [
+      "123.585"
+    ]
+  },
+  {
+    "menu.nm": [
+      "KACANG MERAH"
+    ],
+    "menu.price": [
+      "10,000"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [
+      "10,000"
+    ],
+    "total.total_price": [
+      "10,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "APPLE CINNAMON PASTRY",
+      "ROYAL CHEESE TART"
+    ],
+    "menu.price": [
+      "22,000",
+      "32,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "2"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "54,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "AIR MINERAL"
+    ],
+    "menu.price": [
+      "8,181"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [
+      "8,181"
+    ],
+    "total.total_price": [
+      "8,999"
+    ]
+  },
+  {
+    "menu.nm": [
+      "ICED TT"
+    ],
+    "menu.price": [
+      "20,000"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "22,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "CASH"
+    ],
+    "menu.price": [
+      "100,000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "55,000"
+    ],
+    "total.total_price": [
+      "60,500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Tahu Isi",
+      "Tea",
+      "Kepiting 7-8.4ons - Chilly 0.7",
+      "Udang Telur Asin - Regular",
+      "Kailan 2 Rasa",
+      "Mantau - 2 pcs",
+      "Sweet Tea",
+      "Nasi Putih",
+      "Mantau - 3 pcs"
+    ],
+    "menu.price": [
+      "78,000",
+      "30,000",
+      "297,490",
+      "47,500",
+      "45,000",
+      "25,000",
+      "16,000",
+      "42,000",
+      "37,500"
+    ],
+    "menu.cnt": [
+      "2",
+      "5",
+      "1",
+      "1",
+      "1",
+      "1",
+      "2",
+      "7",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "618,490"
+    ],
+    "total.total_price": [
+      "680,500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Topping Milo Sparkle (untuk",
+      "rsi)",
+      "Bola Ubi Mini Original ( 14 Pcs"
+    ],
+    "menu.price": [
+      "1 Po",
+      "1.250",
+      "25.000"
+    ],
+    "menu.cnt": [
+      "1x",
+      "1x",
+      "2x"
+    ],
+    "sub_total.subtotal_price": [
+      "26.250"
+    ],
+    "total.total_price": [
+      "26.250"
+    ]
+  },
+  {
+    "menu.nm": [
+      "TALAM UNGU",
+      "AREM AREM",
+      "LEMPER",
+      "MIKA SEDANG",
+      "PLASTIK KECIL",
+      "TEH KOTAK"
+    ],
+    "menu.price": [
+      "6,500",
+      "8,000",
+      "18,000",
+      "0",
+      "0",
+      "5,000"
+    ],
+    "menu.cnt": [
+      "1X",
+      "1X",
+      "2X",
+      "1X",
+      "1X",
+      "1X"
+    ],
+    "sub_total.subtotal_price": [
+      "24,500"
+    ],
+    "total.total_price": [
+      "24,500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "XXI Java Tea (M)",
+      "Combo 2"
+    ],
+    "menu.price": [
+      "18.000",
+      "30.000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "48.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Kopi Susu Kampung.",
+      "Kopi Susu Kampung",
+      "Kopi Susu Kampung."
+    ],
+    "menu.price": [
+      "19.000",
+      "0",
+      "38.000"
+    ],
+    "menu.cnt": [
+      "x 1",
+      "x2"
+    ],
+    "sub_total.subtotal_price": [
+      "57.000"
+    ],
+    "total.total_price": [
+      "57.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "SINGLE SCOOP"
+    ],
+    "menu.price": [
+      "16.000"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "16.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "ubur Polos + Telur"
+    ],
+    "menu.price": [
+      "13.000"
+    ],
+    "menu.cnt": [
+      "3x"
+    ],
+    "sub_total.subtotal_price": [
+      "13.000"
+    ],
+    "total.total_price": [
+      "13.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "PILLOW DURIA",
+      "PLASTIK 25"
+    ],
+    "menu.price": [
+      "36,364",
+      "0"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [
+      "36,364"
+    ],
+    "total.total_price": [
+      "40,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "CHEESE JOHN"
+    ],
+    "menu.price": [
+      "9.500,00"
+    ],
+    "menu.cnt": [
+      "x1]"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "9.500,00"
+    ]
+  },
+  {
+    "menu.nm": [
+      "ICED TT"
+    ],
+    "menu.price": [
+      "20,000"
+    ],
+    "menu.cnt": [],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "20,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "[MD] SOFT MORNING ROLL",
+      "REAL HONEY PANCAKE BREAD",
+      "CUSTARD BRIOCHE"
+    ],
+    "menu.price": [
+      "18,000",
+      "20,000",
+      "36,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "2",
+      "4"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "74,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "UDANG RE",
+      "AYM GR JUN NJAN",
+      "SAPO TH SEAFOOD",
+      "POCAI 3",
+      "GURAME FILLET M",
+      "BIHUN GORENG JJ",
+      "ICED TEA",
+      "NASI PUTIH"
+    ],
+    "menu.price": [
+      "432,000",
+      "108,000",
+      "172,000",
+      "222,000",
+      "163,000",
+      "116,000",
+      "60,000",
+      "70,000"
+    ],
+    "menu.cnt": [
+      "2",
+      "1",
+      "1",
+      "2",
+      "1",
+      "1",
+      "5",
+      "7"
+    ],
+    "sub_total.subtotal_price": [
+      "1,343,000"
+    ],
+    "total.total_price": [
+      "1,565,938"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Cuka Apel Tetes"
+    ],
+    "menu.price": [
+      "198000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "198000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Choco Devil"
+    ],
+    "menu.price": [
+      "15,909"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "15,909"
+    ],
+    "total.total_price": [
+      "17,500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "1001-Choco Bun",
+      "6001-Plastic Bag Small"
+    ],
+    "menu.price": [
+      "22.000",
+      "0"
+    ],
+    "menu.cnt": [
+      "x 1",
+      "x 1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "22.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "BLACKCURRANT",
+      "SPRITE",
+      "BEVERAGE",
+      "GRILLED CALAMARI",
+      "DINE FOR 2",
+      "* NEW YORK FISH & CHIPS"
+    ],
+    "menu.price": [
+      "32,000",
+      "32,000",
+      "64,000",
+      "85,000",
+      "129,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "278,000"
+    ],
+    "total.total_price": [
+      "330,264"
+    ]
+  },
+  {
+    "menu.nm": [
+      "CHOCO PUFF",
+      "CREAMY BEEF CLS FTC",
+      "NEW ORIENTAL CHK RICE",
+      "LIPTON PITCHER",
+      "SC/P SUPER SUPREME",
+      "CB/P BLACK PEPP BEEF"
+    ],
+    "menu.price": [
+      "29,091",
+      "42,727",
+      "34,545",
+      "54,545",
+      "47,273",
+      "48,182"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "256,363"
+    ],
+    "total.total_price": [
+      "282,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "BASO TAHU",
+      "NASI PUTIH",
+      "BASO TAHU",
+      "NASI PUTIH"
+    ],
+    "menu.price": [
+      "*46000",
+      "*6000",
+      "*46000",
+      "*12000"
+    ],
+    "menu.cnt": [
+      "2x"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "5Q -"
+    ]
+  },
+  {
+    "menu.nm": [
+      "TRIPPLE CHEESE"
+    ],
+    "menu.price": [
+      "17,000"
+    ],
+    "menu.cnt": [
+      "1 x"
+    ],
+    "sub_total.subtotal_price": [
+      "17,000"
+    ],
+    "total.total_price": [
+      "17,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Lemon Tea (L)"
+    ],
+    "menu.price": [
+      "25.000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "30.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "1001-Choco Bun",
+      "6001-Plastic Bag Small"
+    ],
+    "menu.price": [
+      "22.000",
+      "0"
+    ],
+    "menu.cnt": [
+      "x 1",
+      "x 1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "22.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Viet Milk Coffee"
+    ],
+    "menu.price": [
+      "25.000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "25.000"
+    ],
+    "total.total_price": [
+      "25.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "3002-Kyoto Choco Mochi",
+      "1001-Choco Bun",
+      "6001-Plastic Bag Small"
+    ],
+    "menu.price": [
+      "28.000",
+      "22.000",
+      "0"
+    ],
+    "menu.cnt": [
+      "x2",
+      "x 1",
+      "x 1"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "50.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Chocolate Log Cake",
+      "Snowman Cake Chocolate",
+      "Strawberry Log Cake"
+    ],
+    "menu.price": [
+      "115,000",
+      "60,000",
+      "210,000"
+    ],
+    "menu.cnt": [
+      "1x",
+      "1x",
+      "2x"
+    ],
+    "sub_total.subtotal_price": [
+      "385,000"
+    ],
+    "total.total_price": [
+      "385,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "COOKIES AND CREAM"
+    ],
+    "menu.price": [
+      "20,909"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "20.909"
+    ],
+    "total.total_price": [
+      "23.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Arem Arem"
+    ],
+    "menu.price": [
+      "24.000"
+    ],
+    "menu.cnt": [
+      "2x"
+    ],
+    "sub_total.subtotal_price": [
+      "Rp 36.000"
+    ],
+    "total.total_price": [
+      "Rp 39.600"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Nasi Putih",
+      "Nasi Tambah",
+      "Ayam Pop",
+      "Samabal SP",
+      "Sambal Gabus Asin Cb",
+      "Kerupuk Kuah",
+      "Ikan Bawal Besa",
+      "Telor Dadar",
+      "Teh Es",
+      "Teh Manis",
+      "Es Batu"
+    ],
+    "menu.price": [
+      "30.000",
+      "7.000",
+      "40.000",
+      "11.000",
+      "18.000",
+      "15.000",
+      "28.500",
+      "10.000",
+      "7.000",
+      "9.000",
+      "4.000"
+    ],
+    "menu.cnt": [
+      "3",
+      "1",
+      "2",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "179.500"
+    ],
+    "total.total_price": [
+      "197.450"
+    ]
+  },
+  {
+    "menu.nm": [
+      "Cheezemania",
+      "Mamamia"
+    ],
+    "menu.price": [
+      "9,500",
+      "12,500"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "22,000"
+    ],
+    "total.total_price": [
+      "22,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "PHO TAI CHIN"
+    ],
+    "menu.price": [
+      "36,500"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "36,500"
+    ],
+    "total.total_price": [
+      "40,150"
+    ]
+  },
+  {
+    "menu.nm": [
+      "STIX ECLAIRS",
+      "ALMOND CREAM CHEESE"
+    ],
+    "menu.price": [
+      "19,000",
+      "28,000"
+    ],
+    "menu.cnt": [
+      "1 x",
+      "1 x"
+    ],
+    "sub_total.subtotal_price": [
+      "47,000"
+    ],
+    "total.total_price": [
+      "47,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "XXL Crspy Chicken"
+    ],
+    "menu.price": [
+      "40,000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "40,000"
+    ],
+    "total.total_price": [
+      "40,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "CIRENG PANDAWA"
+    ],
+    "menu.price": [
+      "26,818"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "26,818"
+    ],
+    "total.total_price": [
+      "29,500"
+    ]
+  },
+  {
+    "menu.nm": [
+      "BAKSO BNGKS",
+      "GORENGAN"
+    ],
+    "menu.price": [
+      "15,000",
+      "6,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "6"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "21,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "- TICKET CP"
+    ],
+    "menu.price": [
+      "240,000"
+    ],
+    "menu.cnt": [
+      "4"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "240.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "THAI ICED TEA (L)"
+    ],
+    "menu.price": [
+      "16,363"
+    ],
+    "menu.cnt": [
+      "1 X"
+    ],
+    "sub_total.subtotal_price": [
+      "16,363"
+    ],
+    "total.total_price": [
+      "17,999"
+    ]
+  },
+  {
+    "menu.nm": [
+      "N",
+      "N",
+      "E T T E",
+      "N",
+      "E T E T E T E P",
+      "E S",
+      "E M A",
+      "N",
+      "T T AHU GORENG",
+      "CAKWE",
+      "PHO TAI CHIN R)",
+      "TEA"
+    ],
+    "menu.price": [
+      "O",
+      "O",
+      "O",
+      "O",
+      "O",
+      "O",
+      "O",
+      "O",
+      "O",
+      "17,000",
+      "63,000",
+      "11,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "119,000"
+    ],
+    "total.total_price": [
+      "140,063"
+    ]
+  },
+  {
+    "menu.nm": [
+      "BASO TAHU",
+      "ES JERUK"
+    ],
+    "menu.price": [
+      "43,181-",
+      "13,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "56,181-"
+    ],
+    "total.total_price": [
+      "61,799"
+    ]
+  },
+  {
+    "menu.nm": [
+      "BBQ Chicken"
+    ],
+    "menu.price": [
+      "41,000"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "41,000"
+    ],
+    "total.total_price": [
+      "41,000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "BUBUR GO",
+      "PUYUH GO",
+      "SATEcATIzGO"
+    ],
+    "menu.price": [
+      "40.000",
+      "6.000",
+      "9.000"
+    ],
+    "menu.cnt": [
+      "2",
+      "3"
+    ],
+    "sub_total.subtotal_price": [],
+    "total.total_price": [
+      "55.000"
+    ]
+  },
+  {
+    "menu.nm": [
+      "FOOD Quality/K",
+      "Presentat Taste/Ra. BEVERAC",
+      "BLACK PEPPER MEATBALL PAS",
+      "TRUFFLE CREAM",
+      "EARL GREY MILK TEA"
+    ],
+    "menu.price": [
+      "79,000",
+      "77,000",
+      "59,000",
+      "255,000"
+    ],
+    "menu.cnt": [
+      "1",
+      "1",
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "255,000"
+    ],
+    "total.total_price": [
+      "250,690"
+    ]
+  },
+  {
+    "menu.nm": [
+      "FL-Xmas 30 Off"
+    ],
+    "menu.price": [
+      "68,180"
+    ],
+    "menu.cnt": [
+      "1"
+    ],
+    "sub_total.subtotal_price": [
+      "68,180"
+    ],
+    "total.total_price": [
+      "75,000"
+    ]
+  }
+]
