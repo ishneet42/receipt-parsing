@@ -40,3 +40,6 @@ retrain.log
 
 # Weights & Biases local cache
 wandb/
+
+# Misc local debug artifacts
+tea_debug.log
