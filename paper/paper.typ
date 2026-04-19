@@ -55,13 +55,19 @@
       hybrid (items from Donut, aggregates from LayoutLMv3) performs worse than either
       single model (0.874), demonstrating that the routing direction itself is the source
       of the gain — not ensembling per se. An ablation of the training-label construction
-      shows a simple `is_key` token filter contributes +0.150 micro-F1. A qualitative
-      comparison on a real-world grocery receipt photograph further illustrates the
-      OCR-propagation failure mode: LayoutLMv3 produces unreadable output under a
-      Tesseract failure, while Donut recovers recognizable item names and prices directly
-      from pixels. We conclude that receipt parsing is a composite task whose sub-tasks
-      reward different architectures, and that cross-architecture output agreement
-      provides a free verification signal for the final extraction.
+      shows a simple `is_key` token filter contributes +0.150 micro-F1. Crucially,
+      replacing CORD's gold-annotated OCR with the output of a real OCR engine
+      (Tesseract) at inference time — same model, same images, same metrics —
+      collapses LayoutLMv3's micro-F1 from 0.937 to 0.314, dropping it well below
+      Donut's 0.878. This OCR-source ablation reframes the headline result: roughly
+      two thirds of LayoutLMv3's apparent CORD performance is contributed by
+      human-verified OCR annotations rather than by the trained classifier. A
+      qualitative comparison on a real-world grocery receipt photograph further
+      illustrates the OCR-propagation failure mode. We conclude that receipt parsing
+      is a composite task whose sub-tasks reward different architectures, that
+      cross-architecture output agreement provides a free verification signal, and
+      that standard CORD evaluations of OCR-dependent models should be interpreted
+      as upper bounds on deployable performance.
 
       #text(weight: "bold")[Keywords:]
       receipt parsing, optical character recognition, document understanding, Donut,
@@ -402,6 +408,60 @@ receipt, this cross-architecture agreement provides a verification signal strong
 than either model's internal confidence, because the two architectures fail in
 structurally different ways (OCR-propagation errors vs. generative hallucination).
 Quantifying this as an automated confidence score is left for future work.
+
+== OCR-Source Ablation: Gold vs. Tesseract on CORD
+
+The LayoutLMv3 numbers reported in Tables 2-4 use CORD's pre-annotated, human-verified
+word boxes as the OCR input. This is the standard evaluation protocol on CORD and
+matches how published baselines report results, but it conflates two questions: (1)
+how good is the trained classifier? and (2) how good is a deployable
+OCR$arrow$classifier pipeline? In any real bill-splitting application no human-verified
+OCR is available; the model has to consume the output of an actual OCR engine.
+
+To isolate the OCR-quality effect from the classifier itself, we re-evaluate
+LayoutLMv3 on the same 100 CORD test images, the same trained model, and the same
+metrics — changing only the source of the words and bounding boxes fed into the
+classifier. Tesseract v5 reads each image at inference time; the rest of the pipeline
+(box normalization, BIO grouping, post-processing) is identical.
+
+#align(center)[
+  #table(
+    columns: (auto, auto, auto, auto, auto),
+    align: (left, right, right, right, right),
+    stroke: 0.5pt,
+    inset: 5pt,
+    [*System*], [*Micro F1*], [*Line-item*], [*menu.price F1*], [*total F1*],
+    [LayoutLMv3 + gold OCR (CORD)], [*0.937*], [*0.886*], [*0.968*], [*0.898*],
+    [LayoutLMv3 + Tesseract],       [0.314],   [0.061],   [0.277],   [0.260],
+    [Donut (OCR-free)],             [0.878],   [0.732],   [0.866],   [0.917],
+  )
+  #text(size: 9pt)[
+    *Table 6.* OCR-source ablation on CORD test (normalized matching, $n = 100$). Holding
+    the trained LayoutLMv3 model constant and swapping the source of input words
+    from CORD's gold annotations to Tesseract collapses micro-F1 from 0.937 to 0.314
+    and line-item matching accuracy from 0.886 to 0.061. The intermediate baseline
+    Donut, which has no OCR step, scores 0.878 micro-F1 — substantially above
+    LayoutLMv3-with-Tesseract.
+  ]
+]
+
+This single ablation reframes the headline numbers. LayoutLMv3's nominal 0.937 micro-F1
+overstates the real deployment behavior of the OCR-dependent paradigm by roughly
+0.62 absolute F1 points; almost two thirds of the model's apparent performance is in
+fact contributed by the human-verified OCR annotations that come with CORD, not by
+the multimodal classifier itself. Once Tesseract is substituted in — i.e., once we
+measure the full pipeline rather than just the classification head — Donut wins by
+0.564 absolute micro-F1 on the same images.
+
+The implication is that prior CORD evaluations of OCR-dependent models, including
+ours in earlier sections of this paper, should be interpreted as upper bounds on
+deployable performance. The OCR-free paradigm's real advantage on CORD becomes visible
+only when both systems are evaluated under matched-realism input conditions.
+
+This finding generalizes our earlier qualitative observation on a real-world grocery
+receipt (`bill.png`, next section): the OCR-propagation effect is not a corner case
+that appears only on degraded photographs but rather a baseline-shifting effect even
+on the clean printed receipts that constitute the CORD benchmark.
 
 == Qualitative Comparison on a Real-World Photograph
 

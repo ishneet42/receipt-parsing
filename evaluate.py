@@ -109,6 +109,28 @@ def build_ground_truth(example: Dict[str, Any]) -> Dict[str, List[str]]:
     return build_cord_target_fields(gt.get("gt_parse", {}))
 
 
+def extract_tesseract_words_and_boxes(
+    image: Image.Image, lang: str = "eng"
+) -> Tuple[List[str], List[List[int]]]:
+    """Run Tesseract on the image and return (words, normalized boxes)."""
+    import pytesseract
+    data = pytesseract.image_to_data(image, lang=lang, output_type=pytesseract.Output.DICT)
+    width, height = image.size
+    words: List[str] = []
+    boxes: List[List[int]] = []
+    for i, text in enumerate(data["text"]):
+        w = (text or "").strip()
+        if not w:
+            continue
+        x = int(data["left"][i])
+        y = int(data["top"][i])
+        ww = int(data["width"][i])
+        hh = int(data["height"][i])
+        words.append(w)
+        boxes.append(normalize_bbox([x, y, x + ww, y + hh], width, height))
+    return words, boxes
+
+
 # ────────────────────────────────────────────────────────────────────────────
 #  LayoutLMv3
 # ────────────────────────────────────────────────────────────────────────────
@@ -405,6 +427,7 @@ def evaluate_model(
     device: torch.device,
     cache_path: Path,
     use_cached: bool,
+    ocr_source: str = "gold",
 ) -> Tuple[List[Dict[str, List[str]]], List[Dict[str, List[str]]]]:
     golds = [build_ground_truth(ex) for ex in examples]
 
@@ -421,7 +444,10 @@ def evaluate_model(
         model, processor, id2label = load_layoutlmv3(layoutlmv3_path, device)
         for i, ex in enumerate(examples):
             image = load_image(ex)
-            words, boxes = extract_cord_words_and_boxes(ex, image)
+            if ocr_source == "tesseract":
+                words, boxes = extract_tesseract_words_and_boxes(image)
+            else:
+                words, boxes = extract_cord_words_and_boxes(ex, image)
             pred = predict_layoutlmv3(image, words, boxes, model, processor, id2label, device)
             predictions.append(pred)
             if (i + 1) % 10 == 0 or i == len(examples) - 1:
@@ -531,6 +557,11 @@ def parse_args() -> argparse.Namespace:
                         help="If set, logs each system's final metrics as a separate "
                              "Weights & Biases run under this project so the systems "
                              "can be compared side-by-side on one dashboard.")
+    parser.add_argument("--ocr-source", choices=["gold", "tesseract"], default="gold",
+                        help="OCR source for LayoutLMv3 input at evaluation time. "
+                             "'gold' uses CORD's human-verified word annotations; "
+                             "'tesseract' runs Tesseract on the image. Donut is "
+                             "unaffected (no OCR step).")
     return parser.parse_args()
 
 
@@ -581,13 +612,20 @@ def main() -> None:
     all_predictions: Dict[str, List[Dict[str, List[str]]]] = {}
     golds: List[Dict[str, List[str]]] = []
     for model_type in args.models:
-        print(f"\n─── Running {model_type} ───")
-        cache = args.cache_dir / f"{model_type}-{args.split}-{len(examples)}.json"
+        print(f"\n─── Running {model_type} "
+              + (f"(OCR source: {args.ocr_source}) " if model_type == "layoutlmv3" else "")
+              + "───")
+        # Use a distinct cache key when using Tesseract so we don't collide with
+        # gold-OCR predictions.
+        suffix = f"-{args.ocr_source}" if model_type == "layoutlmv3" and args.ocr_source != "gold" else ""
+        cache = args.cache_dir / f"{model_type}{suffix}-{args.split}-{len(examples)}.json"
         preds, golds = evaluate_model(
-            model_type, examples, args.layoutlmv3_path, device, cache, args.cached
+            model_type, examples, args.layoutlmv3_path, device, cache, args.cached,
+            ocr_source=args.ocr_source,
         )
+        label = f"{model_type}{suffix}" if suffix else model_type
         all_predictions[model_type] = preds
-        all_results[model_type] = compute_metrics(preds, golds)
+        all_results[label] = compute_metrics(preds, golds)
 
     # Compose the hybrid automatically whenever both base models have run.
     if "layoutlmv3" in all_predictions and "donut" in all_predictions:
