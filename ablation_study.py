@@ -25,9 +25,9 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from evaluate import (
-    HYBRID_SOURCE,
+    CHEF_SOURCE,
     TARGET_FIELDS,
-    build_hybrid_predictions,
+    build_chef_predictions,
     compute_metrics,
 )
 
@@ -67,11 +67,11 @@ def load_cached(name: str) -> List[Dict[str, List[str]]]:
     return json.loads(path.read_text())
 
 
-def reverse_hybrid_source() -> Dict[str, str]:
-    """Items ← Donut, aggregates ← LayoutLMv3. The OPPOSITE of HYBRID_SOURCE."""
+def reverse_chef_source() -> Dict[str, str]:
+    """Items ← Donut, aggregates ← LayoutLMv3. The OPPOSITE of CHEF_SOURCE."""
     return {
-        f: ("donut" if HYBRID_SOURCE[f] == "layoutlmv3" else "layoutlmv3")
-        for f in HYBRID_SOURCE
+        f: ("donut" if CHEF_SOURCE[f] == "layoutlmv3" else "layoutlmv3")
+        for f in CHEF_SOURCE
     }
 
 
@@ -107,8 +107,8 @@ def main() -> None:
     variants: Dict[str, List[Dict[str, List[str]]]] = {
         "layoutlmv3 (alone)":     lv3,
         "donut (alone)":          dn,
-        "hybrid (ours)":          build_hybrid_predictions(lv3, dn),
-        "hybrid (reversed)":      build_with_routing(lv3, dn, reverse_hybrid_source()),
+        "CHEF (ours)":            build_chef_predictions(lv3, dn),
+        "CHEF (reversed)":        build_with_routing(lv3, dn, reverse_chef_source()),
     }
 
     results = {name: compute_metrics(preds, golds) for name, preds in variants.items()}

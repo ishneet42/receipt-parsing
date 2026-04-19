@@ -273,7 +273,7 @@
       "n_undefined": 3
     }
   },
-  "hybrid (ours)": {
+  "CHEF (ours)": {
     "per_field": {
       "exact": {
         "menu.nm": {
@@ -383,7 +383,7 @@
       "n_undefined": 3
     }
   },
-  "hybrid (reversed)": {
+  "CHEF (reversed)": {
     "per_field": {
       "exact": {
         "menu.nm": {

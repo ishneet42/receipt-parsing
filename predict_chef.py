@@ -1,14 +1,16 @@
 """
-Run both models on a single receipt image, compose the hybrid, and report
-cross-model agreement + the arithmetic checksum.
+CHEF — Composed Hybrid for Extraction & Field-routing.
 
-Field routing for the hybrid:
+Runs both base models on a single receipt image, composes the CHEF output, and
+reports cross-model agreement + the arithmetic checksum.
+
+Field routing for CHEF:
   - menu.nm / menu.price / menu.cnt      <-- LayoutLMv3 (Tesseract OCR)
   - sub_total.subtotal_price / total.total_price  <-- Donut (OCR-free)
 
 Example:
-    python3 predict_hybrid.py --image-path ~/Desktop/bill2.png
-    python3 predict_hybrid.py --image-path ~/Desktop/bill.png \
+    python3 predict_chef.py --image-path ~/Desktop/bill2.png
+    python3 predict_chef.py --image-path ~/Desktop/bill.png \
         --layoutlmv3-path ./layoutlmv3-fixed
 """
 
@@ -42,7 +44,7 @@ TARGET_FIELDS = [
     "total.total_price",
 ]
 
-HYBRID_SOURCE = {
+CHEF_SOURCE = {
     "menu.nm": "layoutlmv3",
     "menu.price": "layoutlmv3",
     "menu.cnt": "layoutlmv3",
@@ -192,9 +194,9 @@ def predict_donut(image: Image.Image, device: torch.device) -> Dict[str, List[st
 
 
 # ---------- Hybrid + verification ----------
-def build_hybrid(lv3: Dict[str, List[str]], dn: Dict[str, List[str]]) -> Dict[str, List[str]]:
+def build_chef(lv3: Dict[str, List[str]], dn: Dict[str, List[str]]) -> Dict[str, List[str]]:
     return {
-        f: (lv3 if HYBRID_SOURCE[f] == "layoutlmv3" else dn).get(f, [])
+        f: (lv3 if CHEF_SOURCE[f] == "layoutlmv3" else dn).get(f, [])
         for f in TARGET_FIELDS
     }
 
@@ -249,7 +251,7 @@ def pretty(fields: Dict[str, List[str]]) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run LayoutLMv3, Donut, and the Hybrid on a receipt image.")
+    parser = argparse.ArgumentParser(description="Run LayoutLMv3, Donut, and CHEF (our hybrid) on a receipt image.")
     parser.add_argument("--image-path", type=Path, required=True)
     parser.add_argument("--layoutlmv3-path", default="./layoutlmv3-fixed")
     parser.add_argument("--tesseract-lang", default="eng")
@@ -269,12 +271,12 @@ def main() -> None:
     dn = predict_donut(image, device)
     print(pretty(dn))
 
-    hybrid = build_hybrid(lv3, dn)
-    print("\n─── Hybrid (items←LayoutLMv3, aggregates←Donut) ───")
-    print(pretty(hybrid))
+    chef = build_chef(lv3, dn)
+    print("\n─── CHEF (items←LayoutLMv3, aggregates←Donut) ───")
+    print(pretty(chef))
 
     print("\n─── Verification ───")
-    checks = verify(hybrid, lv3, dn)
+    checks = verify(chef, lv3, dn)
     ok = "✓"
     no = "✗"
     print(f"  Items extracted:             {checks['items_count']}")

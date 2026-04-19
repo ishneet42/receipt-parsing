@@ -41,7 +41,7 @@
       applications handle poorly due to their reliance on black-box OCR APIs. This
       paper presents a systematic comparison of two contrasting deep learning paradigms
       for item-level receipt parsing — an OCR-free approach (Donut) and an OCR-dependent
-      approach (LayoutLMv3) — and introduces a simple hybrid that composes the two.
+      approach (LayoutLMv3) — and introduces *CHEF* — *Composed Hybrid for Extraction & Field-routing* — that composes the two.
       We fine-tune LayoutLMv3 on the CORD v2 dataset under resource-constrained
       conditions (MacBook Air, MPS backend, frozen visual backbone) and evaluate the
       pre-finetuned Donut checkpoint released by the original authors. On the 100-receipt
@@ -49,8 +49,7 @@
       accuracy, and a novel receipt-level #emph[checksum-consistency] metric. Our results
       reveal a complementary strength pattern: LayoutLMv3 wins on per-item line-level
       fields (menu.nm F1 0.899, menu.price F1 0.968, line-item matching 0.886) while
-      Donut wins on aggregate fields (subtotal F1 0.901, total F1 0.917). A field-routed
-      #emph[hybrid] that takes line items from LayoutLMv3 and aggregates from Donut
+      Donut wins on aggregate fields (subtotal F1 0.901, total F1 0.917). CHEF, a field-routed hybrid that takes line items from LayoutLMv3 and aggregates from Donut,
       strictly beats either single model (micro-F1 0.940 vs 0.937 and 0.878). A reversed
       hybrid (items from Donut, aggregates from LayoutLMv3) performs worse than either
       single model (0.874), demonstrating that the routing direction itself is the source
@@ -283,19 +282,19 @@ on the subtotal. Net: 4–5 of 5 fields substantially correct.
 Both models perform well on this clean, in-distribution sample. The more informative
 comparison is on real-world out-of-distribution images, presented next.
 
-== Hybrid Composition and Routing Ablation
+== CHEF: Composition and Routing Ablation
 
 The per-field F1 scores in Table 2 suggest a complementary pattern: LayoutLMv3 wins
 on per-item fields while Donut wins on aggregates. We exploit this directly by composing
-a #emph[field-routed hybrid]: for each receipt we take `menu.nm`, `menu.price`,
+CHEF, a #emph[field-routed hybrid]: for each receipt we take `menu.nm`, `menu.price`,
 `menu.cnt` from LayoutLMv3 and `sub_total.subtotal_price`, `total.total_price` from
 Donut. No additional training is required; the routing is applied to cached predictions.
 
-To test whether the hybrid's improvement is driven by the routing direction (rather
-than by ensembling two models in general), we also evaluate a #emph[reversed] hybrid
+To test whether CHEF's improvement is driven by the routing direction (rather
+than by ensembling two models in general), we also evaluate a #emph[reversed] CHEF
 that assigns each field to the model that loses it in Table 2: items come from Donut,
 aggregates come from LayoutLMv3. If any composition of two independent systems were
-inherently better, the reversed hybrid would also beat its components. It does not.
+inherently better, the reversed CHEF would also beat its components. It does not.
 
 #align(center)[
   #table(
@@ -306,14 +305,14 @@ inherently better, the reversed hybrid would also beat its components. It does n
     [*System*], [*Micro F1*], [*Line-item*], [*subtotal F1*], [*total F1*],
     [LayoutLMv3 (alone)],    [0.937], [*0.886*], [0.882], [0.898],
     [Donut (alone)],         [0.878], [0.732],   [0.901], [0.917],
-    [*Hybrid (ours)*],       [*0.940*], [*0.886*], [*0.901*], [*0.917*],
-    [Hybrid (reversed)],     [0.874], [0.732],   [0.882], [0.898],
+    [*CHEF (ours)*],       [*0.940*], [*0.886*], [*0.901*], [*0.917*],
+    [CHEF (reversed)],     [0.874], [0.732],   [0.882], [0.898],
   )
   #text(size: 9pt)[
     *Table 3.* Hybrid composition and routing ablation on CORD test
-    (normalized matching, $n=100$). The hybrid (ours) routes each field to the winning
+    (normalized matching, $n=100$). CHEF (ours) routes each field to the winning
     model in Table 2 and strictly dominates both single models on micro-F1 and
-    line-item matching accuracy. The reversed hybrid routes each field to the losing
+    line-item matching accuracy. The reversed CHEF routes each field to the losing
     model and performs #emph[worse] than either single model — establishing that the
     gain comes from the routing direction itself, not from ensembling.
   ]
@@ -382,7 +381,7 @@ mean absolute error of 6.0%.
     [Ground-truth ceiling], [0.532], [6.0%], [94 receipts],
     [LayoutLMv3],           [0.549], [*5.9%*], [91 receipts],
     [Donut],                [0.536], [22,691%], [97 receipts],
-    [Hybrid (ours)],        [0.526], [22,687%], [97 receipts],
+    [CHEF (ours)],        [0.526], [22,687%], [97 receipts],
   )
   #text(size: 9pt)[
     *Table 5.* Receipt-level checksum consistency on CORD test. All three systems

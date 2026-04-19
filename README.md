@@ -14,14 +14,14 @@ parsing, motivated by automated bill splitting:
 
 We fine-tune LayoutLMv3 on CORD v2 under MacBook Air / MPS compute, adopt the
 official Naver Donut-CORD-v2 checkpoint, and evaluate both on the CORD test
-set. We also compose a **hybrid** that routes fields to whichever architecture
+set. We also compose **CHEF** (*Composed Hybrid for Extraction & Field-routing*) that routes fields to whichever architecture
 wins each one (line items → LayoutLMv3, aggregates → Donut), and introduce a
 **checksum-consistency** metric that measures whether extracted line items sum
 to the extracted total.
 
 ## Headline results (CORD test set, 100 receipts, normalized matching)
 
-| Metric | LayoutLMv3 | Donut | **Hybrid** |
+| Metric | LayoutLMv3 | Donut | **CHEF** |
 | :-- | --: | --: | --: |
 | `menu.nm` F1 | **0.899** | 0.791 | **0.899** |
 | `menu.price` F1 | **0.968** | 0.866 | **0.968** |
@@ -74,7 +74,7 @@ mean error reflects occasional catastrophic hallucinations of the total.
 ├── train_layoutlmv3.py                    ← LayoutLMv3 fine-tune on CORD ✔
 ├── predict_layoutlmv3.py                  ← LayoutLMv3 inference (Tesseract OCR) ✔
 │
-├── predict_hybrid.py                      ← run both models + compose + verify ✔
+├── predict_chef.py                      ← run both models + compose + verify ✔
 └── evaluate.py                            ← shared eval harness (metrics table) ✔
 ```
 
@@ -95,7 +95,7 @@ python3.13 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# Tesseract is only needed for predict_layoutlmv3.py / predict_hybrid.py
+# Tesseract is only needed for predict_layoutlmv3.py / predict_chef.py
 brew install tesseract
 ```
 
@@ -125,13 +125,13 @@ python3 train_layoutlmv3.py \
 Expected: ~1.5 hours on Apple Silicon, ~50 min with a warm HuggingFace cache.
 Early stopping typically fires around epoch 8.
 
-### Test a single receipt (hybrid pipeline — recommended)
+### Test a single receipt (CHEF pipeline — recommended)
 
 ```bash
-python3 predict_hybrid.py --image-path /path/to/receipt.png
+python3 predict_chef.py --image-path /path/to/receipt.png
 ```
 
-Runs both LayoutLMv3 (Tesseract OCR) and Donut, composes the hybrid output,
+Runs both LayoutLMv3 (Tesseract OCR) and Donut, composes the CHEF output,
 prints each model's view, and verifies the arithmetic checksum and
 cross-model agreement.
 
@@ -148,7 +148,7 @@ python3 predict_donut_pretrained.py --image-path /path/to/receipt.png
 python3 evaluate.py --models layoutlmv3 donut --layoutlmv3-path ./layoutlmv3-fixed
 ```
 
-Runs both models on 100 receipts, composes the hybrid, computes per-field F1,
+Runs both models on 100 receipts, composes CHEF, computes per-field F1,
 micro-F1, line-item matching accuracy, and checksum consistency. About 3 min
 total on MPS. Predictions are cached under `eval-cache/`; rerun with
 `--cached` to skip inference and only recompute metrics.

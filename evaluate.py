@@ -50,11 +50,11 @@ TARGET_FIELDS = [
     "total.total_price",
 ]
 
-# Hybrid field routing: use LayoutLMv3 for per-item fields (which it wins) and
-# Donut for aggregate key-value fields (which it wins). This composition is
-# motivated by the complementary-strengths finding reported in Section 4.4 of
-# the paper.
-HYBRID_SOURCE = {
+# CHEF (Composed Hybrid for Extraction & Field-routing): use LayoutLMv3 for
+# per-item fields (which it wins) and Donut for aggregate key-value fields
+# (which it wins). This composition is motivated by the complementary-strengths
+# finding reported in Section 4.4 of the paper.
+CHEF_SOURCE = {
     "menu.nm": "layoutlmv3",
     "menu.price": "layoutlmv3",
     "menu.cnt": "layoutlmv3",
@@ -329,19 +329,24 @@ def line_item_accuracy(
     return tp / total if total else 0.0
 
 
-def build_hybrid_predictions(
+def build_chef_predictions(
     layoutlmv3_preds: List[Dict[str, List[str]]],
     donut_preds: List[Dict[str, List[str]]],
 ) -> List[Dict[str, List[str]]]:
-    """Compose per-field outputs from each source model according to HYBRID_SOURCE."""
-    hybrid: List[Dict[str, List[str]]] = []
+    """Compose per-field outputs from each source model according to CHEF_SOURCE."""
+    chef: List[Dict[str, List[str]]] = []
     for lv3, dn in zip(layoutlmv3_preds, donut_preds):
         merged = {}
         for field in TARGET_FIELDS:
-            src = HYBRID_SOURCE.get(field, "layoutlmv3")
+            src = CHEF_SOURCE.get(field, "layoutlmv3")
             merged[field] = (lv3 if src == "layoutlmv3" else dn).get(field, [])
-        hybrid.append(merged)
-    return hybrid
+        chef.append(merged)
+    return chef
+
+
+# Backward-compatibility alias for any external scripts still importing the old names.
+HYBRID_SOURCE = CHEF_SOURCE
+build_hybrid_predictions = build_chef_predictions
 
 
 def parse_number(text: str) -> int:
@@ -627,16 +632,16 @@ def main() -> None:
         all_predictions[model_type] = preds
         all_results[label] = compute_metrics(preds, golds)
 
-    # Compose the hybrid automatically whenever both base models have run.
+    # Compose CHEF automatically whenever both base models have run.
     if "layoutlmv3" in all_predictions and "donut" in all_predictions:
-        print("\n─── Composing hybrid (items ← LayoutLMv3, aggregates ← Donut) ───")
-        hybrid_preds = build_hybrid_predictions(
+        print("\n─── Composing CHEF (items ← LayoutLMv3, aggregates ← Donut) ───")
+        chef_preds = build_chef_predictions(
             all_predictions["layoutlmv3"], all_predictions["donut"]
         )
-        (args.cache_dir / f"hybrid-{args.split}-{len(examples)}.json").write_text(
-            json.dumps(hybrid_preds, ensure_ascii=False, indent=2)
+        (args.cache_dir / f"chef-{args.split}-{len(examples)}.json").write_text(
+            json.dumps(chef_preds, ensure_ascii=False, indent=2)
         )
-        all_results["hybrid"] = compute_metrics(hybrid_preds, golds)
+        all_results["chef"] = compute_metrics(chef_preds, golds)
 
     # Ceiling reference: how often does CORD's OWN ground truth satisfy the
     # naive items-sum-equals-total checksum? Receipts often include tax or
