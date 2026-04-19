@@ -13,3 +13,5 @@ numpy>=1.24
 # pytesseract drives the Tesseract binary for predict_layoutlmv3.py.
 # Install Tesseract separately: macOS `brew install tesseract`, Ubuntu `apt-get install tesseract-ocr`.
 pytesseract>=0.3.10
+# Optional: experiment tracking. Only needed if training with --wandb-project.
+wandb>=0.17.0

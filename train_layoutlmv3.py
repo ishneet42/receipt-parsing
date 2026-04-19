@@ -255,6 +255,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-train-epochs", type=int, default=30)
     parser.add_argument("--early-stopping-patience", type=int, default=5)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--wandb-project",
+        default=None,
+        help="If set, logs metrics to Weights & Biases under this project name. "
+             "Requires `pip install wandb` and `wandb login` to have been run.",
+    )
+    parser.add_argument(
+        "--wandb-run-name",
+        default=None,
+        help="Optional human-readable run name for the W&B dashboard.",
+    )
     parser.add_argument("--per-device-train-batch-size", type=int, default=4)
     parser.add_argument("--per-device-eval-batch-size", type=int, default=4)
     parser.add_argument("--gradient-accumulation-steps", type=int, default=2)
@@ -295,6 +306,19 @@ def main() -> None:
     print(f"Selected fields ({args.target_mode}): {selected_fields}")
     print(f"Label space ({len(label_list)} classes): {label_list}")
 
+    # Configure Weights & Biases BEFORE constructing TrainingArguments so
+    # that the Trainer picks up WANDB_PROJECT / WANDB_NAME from the env.
+    import os
+    if args.wandb_project:
+        os.environ["WANDB_PROJECT"] = args.wandb_project
+        if args.wandb_run_name:
+            os.environ["WANDB_NAME"] = args.wandb_run_name
+        report_to = "wandb"
+        print(f"Weights & Biases enabled — project='{args.wandb_project}'"
+              + (f", run='{args.wandb_run_name}'" if args.wandb_run_name else ""))
+    else:
+        report_to = "none"
+
     model, processor = build_model_and_processor(
         args.model_name,
         label_list,
@@ -333,7 +357,7 @@ def main() -> None:
         greater_is_better=False,
         seed=args.seed,
         remove_unused_columns=False,
-        report_to="none",
+        report_to=report_to,
         use_mps_device=device_name == "mps",
         use_cpu=device_name == "cpu",
         fp16=device_name == "cuda",

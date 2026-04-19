@@ -37,3 +37,6 @@ nohup.out
 # Evaluation / training logs
 eval.log
 retrain.log
+
+# Weights & Biases local cache
+wandb/
