@@ -1,0 +1,374 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Research Poster — CSCI 5922 Final Project
+% OCR-Free vs. OCR-Dependent Architectures for Item-Level Receipt Parsing
+% Ishneet Chadha, Manikandan Gunaseelan
+% Adapted from K. Stange / Athena Sparks CU baposter template
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[landscape,a0paper,fontscale=0.285]{baposter}
+
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\setlist{nolistsep,leftmargin=3.5mm}
+\usepackage{palatino}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{tikz}
+\usetikzlibrary{fit,shapes,arrows,positioning,decorations.pathmorphing}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{multicol}
+\setlength{\columnsep}{1.5em}
+\setlength{\columnseprule}{0mm}
+\usepackage{tabularx}
+\usepackage{colortbl}
+
+\newcommand{\compresslist}{
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+}
+
+\definecolor{CUgold}{RGB}{207,184,124}
+\definecolor{lightgray}{RGB}{240,240,240}
+\definecolor{wingreen}{RGB}{200,235,205}
+\definecolor{lossred}{RGB}{250,220,220}
+
+\begin{document}
+
+\begin{poster}
+{
+headerborder=closed,
+colspacing=1em,
+bgColorOne=white,
+bgColorTwo=white,
+borderColor=black,
+headerColorOne=CUgold,
+headerColorTwo=CUgold,
+headerFontColor=black,
+boxColorOne=white,
+textborder=roundedleft,
+eyecatcher=true,
+headerheight=0.13\textheight,
+headershape=roundedright,
+headerfont=\Large\bf\textsc,
+linewidth=2pt
+}
+%----------------------------------------------------------------------------------------
+%	TITLE
+%----------------------------------------------------------------------------------------
+{\hspace{1.8cm}\includegraphics[scale=.19]{Figures/cu.png}}
+{\hspace{-.2cm}\bf\textsc{OCR-Free vs.\ OCR-Dependent Architectures}\vspace{0.2em}\\
+\hspace{-.2cm}\bf\textsc{for Item-Level Receipt Parsing}\vspace{0.2em}}
+{\hspace{-0.0cm}\textit{A Comparative Study for Automated Bill Splitting}\\
+Ishneet Chadha, Manikandan Gunaseelan\\
+CSCI 5922 — Neural Networks and Deep Learning, University of Colorado Boulder}
+{\includegraphics[scale=.18]{Figures/CU_logo.png}\hspace{2.3cm}}
+
+%----------------------------------------------------------------------------------------
+%	MOTIVATION
+%----------------------------------------------------------------------------------------
+
+\headerbox{Motivation \& Problem}{name=motivation,column=0,row=0, span=2}{
+
+\textbf{Bill-splitting apps (Splitwise, Venmo) still require users to manually type itemized
+amounts.} A receipt-photographed pipeline that automatically extracts every line item
+and price would close that gap — but requires \emph{item-level} extraction, not just
+the document-level fields most receipt benchmarks emphasize.
+
+\medskip
+
+Two competing architectural paradigms exist:
+\begin{itemize}\compresslist
+\item \textbf{OCR-dependent:} an external OCR engine produces tokens + boxes; a multimodal
+transformer classifies each token. Risks \emph{error propagation} from OCR mistakes.
+\item \textbf{OCR-free:} an end-to-end transformer maps raw pixels to structured output,
+with no OCR step. Risks \emph{hallucination} but bypasses OCR errors entirely.
+\end{itemize}
+
+\textbf{Research questions:}
+\begin{enumerate}\compresslist
+\item Which paradigm is better at item-level extraction on a clean benchmark (CORD)?
+\item How much of the OCR-dependent system's apparent score is the model vs.\ the OCR?
+\item Can the two be \emph{composed} to inherit each other's strengths?
+\end{enumerate}
+}
+
+%----------------------------------------------------------------------------------------
+%	METHODS
+%----------------------------------------------------------------------------------------
+
+\headerbox{Methods}{name=methods,column=2,row=0, span=2}{
+
+\textbf{Models compared}
+\begin{itemize}\compresslist
+\item \textbf{LayoutLMv3} (Microsoft, OCR-dependent): Tesseract v5 $\rightarrow$
+multimodal transformer $\rightarrow$ token classification with \textbf{BIO labels} over 5
+target fields. Fine-tuned on CORD v2 ourselves on a MacBook Air (MPS).
+\item \textbf{Donut} (Naver, OCR-free): Swin Transformer encoder + BART decoder
+generates JSON directly. We use \texttt{naver-clova-ix/donut-base-finetuned-cord-v2}.
+\item \textbf{Hybrid (ours):} field-routed composition — line items
+$\leftarrow$ LayoutLMv3, aggregates $\leftarrow$ Donut. No additional training.
+\end{itemize}
+
+\medskip
+
+\textbf{Target fields (CORD):} \texttt{menu.nm}, \texttt{menu.price}, \texttt{menu.cnt},
+\texttt{sub\_total.subtotal\_price}, \texttt{total.total\_price} \\
+\textbf{Test set:} 100 CORD test receipts. \textbf{Tracking:} Weights \& Biases.
+
+\medskip
+
+\textbf{Metrics:}
+\begin{itemize}\compresslist
+\item \textit{Entity-level F1} per field (multiset matching, exact + normalized)
+\item \textit{Micro-F1} over all 5 fields
+\item \textit{Line-item matching accuracy} — fraction of (name, price) pairs jointly correct
+\item \textit{Checksum consistency} (novel): does $\sum$items $=$ total within $\pm 5\%$?
+\end{itemize}
+}
+
+%----------------------------------------------------------------------------------------
+%	HEADLINE RESULTS
+%----------------------------------------------------------------------------------------
+
+\headerbox{Headline Results — CORD Test (n = 100)}{name=results,column=0, below=motivation, span=2}{
+
+\textbf{Per-field F1 (normalized matching):} the two paradigms exhibit a
+\emph{complementary strength pattern.}
+
+\medskip
+
+\centering
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Field} & \textbf{LayoutLMv3} & \textbf{Donut} & \textbf{Hybrid} \\
+\midrule
+\rowcolor{wingreen}\texttt{menu.nm}                  & \textbf{0.899} & 0.791 & \textbf{0.899} \\
+\rowcolor{wingreen}\texttt{menu.price}               & \textbf{0.968} & 0.866 & \textbf{0.968} \\
+\rowcolor{wingreen}\texttt{menu.cnt}                 & \textbf{0.980} & 0.968 & \textbf{0.980} \\
+\rowcolor{lightgray}\texttt{sub\_total.subtotal\_price} & 0.882 & \textbf{0.901} & \textbf{0.901} \\
+\rowcolor{lightgray}\texttt{total.total\_price}       & 0.898 & \textbf{0.917} & \textbf{0.917} \\
+\midrule
+\textbf{Micro F1}                & 0.937 & 0.878 & \textbf{0.940} \\
+\textbf{Line-item matching}      & 0.886 & 0.732 & \textbf{0.886} \\
+\bottomrule
+\end{tabular}
+
+\medskip
+
+\raggedright
+\textbf{Findings:}
+\begin{itemize}\compresslist
+\item LayoutLMv3 wins all per-item fields (\textcolor{green!50!black}{green rows}); Donut wins both aggregates (\textcolor{gray!70!black}{gray rows}).
+\item The \textbf{hybrid strictly beats both single models} (0.940 micro-F1) without retraining.
+\item The two paradigms fail in \emph{uncorrelated} ways — exactly what makes composition useful.
+\end{itemize}
+}
+
+%----------------------------------------------------------------------------------------
+%	OCR-SOURCE ABLATION (the bombshell)
+%----------------------------------------------------------------------------------------
+
+\headerbox{OCR-Source Ablation: How Much Was the OCR Doing?}{name=ocr_ablation,column=2, below=methods, span=2}{
+
+The headline LayoutLMv3 score uses \textbf{CORD's human-verified word boxes} as input.
+This conflates ``how good is the classifier?'' with ``how good is the
+OCR$\rightarrow$classifier pipeline?'' We swap in real Tesseract OCR — same model, same
+images, same metrics — and measure the drop.
+
+\medskip
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{System} & \textbf{Micro F1} & \textbf{Line-item} & \textbf{total F1} \\
+\midrule
+LayoutLMv3 + \emph{gold} OCR (CORD) & \textbf{0.937} & \textbf{0.886} & 0.898 \\
+\rowcolor{lossred}LayoutLMv3 + Tesseract           & 0.314 & 0.061 & 0.260 \\
+Donut (no OCR)                      & 0.878 & 0.732 & \textbf{0.917} \\
+\bottomrule
+\end{tabular}
+
+\medskip
+
+\raggedright
+\textbf{Findings:}
+\begin{itemize}\compresslist
+\item Replacing gold OCR with Tesseract drops LayoutLMv3 by \textbf{0.62 absolute micro-F1}.
+\item \textbf{Roughly 2/3 of the headline 0.937 score was contributed by the OCR}, not the model.
+\item Once Tesseract is substituted in, \textbf{Donut wins by 0.564 micro-F1} on the same images.
+\item \textbf{Standard CORD evaluations of OCR-dependent models are upper bounds on deployable performance.}
+\end{itemize}
+}
+
+%----------------------------------------------------------------------------------------
+%	HYBRID + ROUTING ABLATION
+%----------------------------------------------------------------------------------------
+
+\headerbox{Hybrid Composition \& Routing Ablation}{name=hybrid,column=0, below=results, span=2}{
+
+\begin{minipage}{0.55\textwidth}
+\textbf{Why does the hybrid help?} Two questions:
+\begin{enumerate}\compresslist
+\item Does it beat both single models? \textbf{Yes (0.940 vs 0.937 / 0.878).}
+\item Is the gain from \emph{routing direction} or just \emph{ensembling}?
+\end{enumerate}
+
+We test (2) with a \textbf{negative control}: a \emph{reversed} hybrid that routes
+fields to the model that loses each one (items $\leftarrow$ Donut, aggregates
+$\leftarrow$ LayoutLMv3). If ensembling alone helped, the reversed hybrid would also
+beat both. It does not.
+
+\medskip
+
+\textbf{Conclusion:} the hybrid's gain comes from the \emph{architecturally correct
+routing direction}, not from the act of combining two models.
+\end{minipage}
+\hfill
+\begin{minipage}{0.42\textwidth}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lr}
+\toprule
+\textbf{System} & \textbf{Micro F1} \\
+\midrule
+LayoutLMv3 (alone)        & 0.937 \\
+Donut (alone)             & 0.878 \\
+\rowcolor{wingreen}\textbf{Hybrid (ours)}            & \textbf{0.940} \\
+\rowcolor{lossred}Hybrid (\emph{reversed})  & 0.874 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+}
+
+%----------------------------------------------------------------------------------------
+%	LABEL CONSTRUCTION ABLATION + CHECKSUM
+%----------------------------------------------------------------------------------------
+
+\headerbox{Label-Construction Ablation \& Checksum Consistency}{name=is_key,column=2, below=ocr_ablation, span=2}{
+
+\begin{minipage}{0.5\textwidth}
+\textbf{The \texttt{is\_key} bug fix.} CORD marks key tokens (e.g., the word
+\texttt{TOTAL} preceding the value) with an \texttt{is\_key=1} flag. Our initial
+training script labeled both keys and values with the same BIO target, causing the
+model to emit ``\texttt{TOTAL 60.000}'' instead of ``\texttt{60.000}''. Filtering
+\texttt{is\_key=1} tokens to background \textbf{adds +0.150 micro-F1} (concentrated
+in aggregate fields).
+
+\smallskip
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Variant}            & \textbf{Micro} & \textbf{subtotal} & \textbf{total} \\
+\midrule
+no \texttt{is\_key} filter  & 0.787 & 0.074 & 0.010 \\
+\rowcolor{wingreen}with \texttt{is\_key} filter & \textbf{0.937} & \textbf{0.882} & \textbf{0.898} \\
+\midrule
+$\Delta$                    & \textbf{+0.150} & \textbf{+0.808} & \textbf{+0.888} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}{0.46\textwidth}
+\textbf{Checksum consistency.} Does $\sum$items $=$ total $\pm 5\%$? Even CORD's own
+ground truth only passes $\sim$53\% (real receipts have tax/fees). \textbf{All systems
+sit at this ceiling}, so pass-rate alone doesn't discriminate. The
+\emph{mean absolute error} does:
+
+\smallskip
+\centering
+\begin{tabular}{lrr}
+\toprule
+\textbf{System} & \textbf{Pass} & \textbf{Mean err} \\
+\midrule
+Gold ceiling  & 0.532 & 6.0\% \\
+\rowcolor{wingreen}LayoutLMv3 & 0.549 & \textbf{5.9\%} \\
+\rowcolor{lossred}Donut      & 0.536 & \textbf{22{,}691\%} \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright
+Donut occasionally hallucinates totals \textbf{four orders of magnitude wrong} — a
+failure mode invisible to F1 but catastrophic for bill-splitting.
+\end{minipage}
+}
+
+%----------------------------------------------------------------------------------------
+%	REAL-WORLD QUALITATIVE TEST
+%----------------------------------------------------------------------------------------
+
+\headerbox{Real-World Test: Photographed Grocery Receipt}{name=realworld,column=0, below=hybrid, span=2}{
+
+We photographed two real US grocery-store receipts and ran both pipelines end-to-end.
+
+\medskip
+
+\begin{minipage}{0.5\textwidth}
+\textbf{\texttt{bill.png} — Kroger long receipt:}
+\begin{itemize}\compresslist
+\item \textbf{LayoutLMv3 + Tesseract:} Tesseract reads ``TOTAL'' as
+\texttt{TOVAL}, \texttt{ioial}; output is unusable nonsense
+(\texttt{Pperrevecceresreernesenersneerennienny}, etc.).
+\item \textbf{Donut:} recognizable items — \texttt{SAGE TOLLYCHIRT} (Tortellini),
+\texttt{ROMANE TEATCUE} (Romaine Lettuce), \texttt{KOROGER EGOS} (Kroger Eggs) —
+with plausible prices (\$10.99, \$1.58, \$0.98, \$3.79, \$47.73, ...).
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+\textbf{\texttt{bill2.png} — India Bazaar receipt:}
+\begin{itemize}\compresslist
+\item LayoutLMv3 + Tesseract extracted 5 prices: \$8.99, \$2.99, \$1.75, \$4.99, \$15.99.
+\item \textbf{Sum = \$34.71 = predicted subtotal exactly} — checksum verified.
+\item Both models agreed on subtotal (\$34.71) and total (\$36.05).
+\item Cross-architecture agreement = a free verification signal.
+\end{itemize}
+\end{minipage}
+}
+
+%----------------------------------------------------------------------------------------
+%	CONCLUSIONS
+%----------------------------------------------------------------------------------------
+
+\headerbox{Conclusions \& Implications}{name=conclusions,column=2, below=is_key, span=2, above=bottom}{
+
+\textbf{1. Receipt parsing is a composite task.} Line items reward dense token classification
+(LayoutLMv3); aggregates reward schema-constrained generation (Donut). Each architecture's
+inductive bias matches a different sub-task.
+
+\smallskip
+
+\textbf{2. The hybrid is principled, not ad-hoc.} The reversed-routing negative control
+(0.874, below either single model) shows the gain is from \emph{architecturally correct}
+routing, not ensembling. Cross-architecture agreement is a free verification signal at
+inference time.
+
+\smallskip
+
+\textbf{3. The OCR-source ablation reframes the literature.} Replacing gold CORD OCR
+with Tesseract collapses LayoutLMv3 from 0.937 to 0.314 micro-F1 (Donut: 0.878
+unchanged). \textbf{Reported CORD scores for OCR-dependent models substantially overstate
+deployable performance.}
+
+\smallskip
+
+\textbf{For a real bill-splitting app:} use the hybrid; verify with the checksum;
+prefer Donut when image quality is unknown.
+
+\medskip
+
+\centering
+\small \textbf{Code \& paper:} \texttt{github.com/ishneet42/receipt-parsing}
+}
+
+%----------------------------------------------------------------------------------------
+
+\end{poster}
+\end{document}
