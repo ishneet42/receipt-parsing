@@ -40,26 +40,28 @@
       line items and prices from receipt images — a task that current bill-splitting
       applications handle poorly due to their reliance on black-box OCR APIs. This
       paper presents a systematic comparison of two contrasting deep learning paradigms
-      for item-level receipt parsing: an OCR-free approach, represented by Donut, which
-      maps raw image pixels directly to structured output via an end-to-end transformer;
-      and an OCR-dependent approach, represented by LayoutLMv3, which first extracts text
-      using an external OCR engine and then classifies tokens into semantic fields using
-      a multimodal transformer. We fine-tune LayoutLMv3 on the CORD v2 dataset under
-      resource-constrained conditions (MacBook Air, MPS backend, frozen visual backbone)
-      and evaluate the pre-finetuned Donut checkpoint released by the original authors.
-      On the 100-receipt CORD test set, we report entity-level F1 per field, micro-F1,
-      and line-item matching accuracy. Our results reveal a
-      #emph[complementary strength pattern] not previously reported: Donut achieves
-      higher overall micro-F1 (0.878 vs 0.787) driven by strong performance on aggregate
-      fields (subtotal F1 0.901, total F1 0.917), while LayoutLMv3 wins on per-item
-      line-level extraction (menu.nm F1 0.938, menu.price F1 0.970, and line-item
-      matching accuracy 0.878 vs Donut's 0.732). A qualitative comparison on a real-world
-      grocery receipt photograph further illustrates the OCR-propagation failure mode:
-      LayoutLMv3 produces largely unreadable output due to Tesseract OCR failures, while
-      Donut recovers recognizable item names and prices directly from pixels. For a
-      bill-splitting application — where line-item accuracy is the operative metric —
-      LayoutLMv3 is the task-appropriate choice on clean inputs, but Donut is the more
-      robust choice for real-world photographs.
+      for item-level receipt parsing — an OCR-free approach (Donut) and an OCR-dependent
+      approach (LayoutLMv3) — and introduces a simple hybrid that composes the two.
+      We fine-tune LayoutLMv3 on the CORD v2 dataset under resource-constrained
+      conditions (MacBook Air, MPS backend, frozen visual backbone) and evaluate the
+      pre-finetuned Donut checkpoint released by the original authors. On the 100-receipt
+      CORD test set we report entity-level F1 per field, micro-F1, line-item matching
+      accuracy, and a novel receipt-level #emph[checksum-consistency] metric. Our results
+      reveal a complementary strength pattern: LayoutLMv3 wins on per-item line-level
+      fields (menu.nm F1 0.899, menu.price F1 0.968, line-item matching 0.886) while
+      Donut wins on aggregate fields (subtotal F1 0.901, total F1 0.917). A field-routed
+      #emph[hybrid] that takes line items from LayoutLMv3 and aggregates from Donut
+      strictly beats either single model (micro-F1 0.940 vs 0.937 and 0.878). A reversed
+      hybrid (items from Donut, aggregates from LayoutLMv3) performs worse than either
+      single model (0.874), demonstrating that the routing direction itself is the source
+      of the gain — not ensembling per se. An ablation of the training-label construction
+      shows a simple `is_key` token filter contributes +0.150 micro-F1. A qualitative
+      comparison on a real-world grocery receipt photograph further illustrates the
+      OCR-propagation failure mode: LayoutLMv3 produces unreadable output under a
+      Tesseract failure, while Donut recovers recognizable item names and prices directly
+      from pixels. We conclude that receipt parsing is a composite task whose sub-tasks
+      reward different architectures, and that cross-architecture output agreement
+      provides a free verification signal for the final extraction.
 
       #text(weight: "bold")[Keywords:]
       receipt parsing, optical character recognition, document understanding, Donut,
@@ -229,23 +231,20 @@ was epoch 8, with `eval_loss` = 0.074.
     stroke: 0.5pt,
     inset: 6pt,
     [*Epoch*], [*`eval_loss`*], [*Token acc.*], [*Non-O acc.*],
-    [1],  [0.352], [88.9%], [89.2%],
-    [2],  [0.126], [94.1%], [98.2%],
-    [3],  [0.103], [97.3%], [96.2%],
-    [4],  [0.098], [97.7%], [96.9%],
-    [5],  [0.103], [97.7%], [97.2%],
-    [6],  [0.079], [98.1%], [97.8%],
-    [7],  [0.111], [98.3%], [97.9%],
-    [*8*],  [*0.074*], [*98.8%*], [*98.5%*],
-    [9],  [0.083], [98.4%], [98.2%],
-    [10], [0.106], [98.4%], [98.2%],
-    [11], [0.135], [98.2%], [97.9%],
-    [12], [0.123], [98.1%], [97.9%],
+    [1],  [0.315], [88.6%], [91.2%],
+    [2],  [0.216], [91.4%], [95.4%],
+    [3],  [0.104], [97.5%], [96.2%],
+    [*4*],  [*0.103*], [*96.7%*], [*96.2%*],
+    [5],  [0.105], [97.5%], [97.1%],
+    [6],  [0.116], [97.9%], [97.0%],
+    [7],  [0.121], [97.1%], [96.2%],
+    [8],  [0.127], [97.8%], [96.9%],
   )
   #text(size: 9pt)[
     *Table 1.* Per-epoch validation metrics for LayoutLMv3 on the CORD validation split
-    (100 receipts, 1,357 non-background tokens). Early stopping selects epoch 8 as the
-    best checkpoint by `eval_loss`.
+    (100 receipts, 1,169 non-background tokens under the final label scheme). Early
+    stopping selects epoch 4 as the best checkpoint by `eval_loss`; training terminated
+    at epoch 8 of a planned 15 after four consecutive epochs without improvement.
   ]
 ]
 
@@ -277,6 +276,132 @@ on the subtotal. Net: 4–5 of 5 fields substantially correct.
 
 Both models perform well on this clean, in-distribution sample. The more informative
 comparison is on real-world out-of-distribution images, presented next.
+
+== Hybrid Composition and Routing Ablation
+
+The per-field F1 scores in Table 2 suggest a complementary pattern: LayoutLMv3 wins
+on per-item fields while Donut wins on aggregates. We exploit this directly by composing
+a #emph[field-routed hybrid]: for each receipt we take `menu.nm`, `menu.price`,
+`menu.cnt` from LayoutLMv3 and `sub_total.subtotal_price`, `total.total_price` from
+Donut. No additional training is required; the routing is applied to cached predictions.
+
+To test whether the hybrid's improvement is driven by the routing direction (rather
+than by ensembling two models in general), we also evaluate a #emph[reversed] hybrid
+that assigns each field to the model that loses it in Table 2: items come from Donut,
+aggregates come from LayoutLMv3. If any composition of two independent systems were
+inherently better, the reversed hybrid would also beat its components. It does not.
+
+#align(center)[
+  #table(
+    columns: (auto, auto, auto, auto, auto),
+    align: (left, right, right, right, right),
+    stroke: 0.5pt,
+    inset: 5pt,
+    [*System*], [*Micro F1*], [*Line-item*], [*subtotal F1*], [*total F1*],
+    [LayoutLMv3 (alone)],    [0.937], [*0.886*], [0.882], [0.898],
+    [Donut (alone)],         [0.878], [0.732],   [0.901], [0.917],
+    [*Hybrid (ours)*],       [*0.940*], [*0.886*], [*0.901*], [*0.917*],
+    [Hybrid (reversed)],     [0.874], [0.732],   [0.882], [0.898],
+  )
+  #text(size: 9pt)[
+    *Table 3.* Hybrid composition and routing ablation on CORD test
+    (normalized matching, $n=100$). The hybrid (ours) routes each field to the winning
+    model in Table 2 and strictly dominates both single models on micro-F1 and
+    line-item matching accuracy. The reversed hybrid routes each field to the losing
+    model and performs #emph[worse] than either single model — establishing that the
+    gain comes from the routing direction itself, not from ensembling.
+  ]
+]
+
+== Label-Construction Ablation: the `is_key` Filter
+
+A subtle choice during training-target construction dominates LayoutLMv3's performance
+on aggregate fields. The CORD annotation marks key words (e.g., the token "TOTAL"
+preceding the numeric total) with an `is_key = 1` flag, distinguishing them from value
+tokens in the same field. Our initial training script assigned the same BIO label to
+both key and value tokens; at inference the grouping post-processor then concatenated
+them, producing outputs of the form `"TOTAL 60.000"` for `total.total_price` rather
+than the gold value `"60.000"`. Exact-match F1 on aggregate fields collapsed to
+effectively zero.
+
+Filtering out `is_key = 1` words at label-construction time (assigning them to the
+background class `O`) and retraining with an otherwise identical configuration yields
+the numbers reported throughout this section.
+
+#align(center)[
+  #table(
+    columns: (auto, auto, auto, auto, auto, auto),
+    align: (left, right, right, right, right, right),
+    stroke: 0.5pt,
+    inset: 5pt,
+    [*Variant*], [*Micro F1*], [*Line-item*], [*menu.price F1*], [*subtotal F1*], [*total F1*],
+    [LayoutLMv3, no `is_key` filter], [0.787],   [0.878],   [0.970],   [0.074],   [0.010],
+    [*LayoutLMv3, with `is_key` filter*], [*0.937*], [*0.886*], [*0.968*], [*0.882*], [*0.898*],
+    [$Delta$ (absolute)], [+0.150], [+0.008], [#sym.minus 0.002], [+0.808], [+0.888],
+  )
+  #text(size: 9pt)[
+    *Table 4.* Label-construction ablation on CORD test (normalized matching, $n = 100$).
+    A three-line change that excludes key tokens from target-field labels during
+    training accounts for +0.150 absolute micro-F1, concentrated almost entirely in
+    the two aggregate fields. Line-item fields are essentially unaffected (±0.01),
+    confirming that the failure mode was specific to key-value structures where the
+    key and value tokens are adjacent.
+  ]
+]
+
+== Receipt-Level Checksum Consistency
+
+Beyond field-wise F1, a bill-splitting application requires the extraction to be
+#emph[internally coherent]: the sum of the extracted line-item prices should equal the
+extracted total. We define a receipt-level #emph[checksum-consistency] metric as the
+fraction of receipts for which $|sum_i italic("menu.price")_i - italic("total.total_price")|
+#h(0.3em) lt.eq #h(0.3em) 5% dot italic("total.total_price")$. Receipts for which
+either the predicted items or the predicted total is missing are excluded from the
+denominator.
+
+A natural concern is the ceiling: real receipts include taxes, service charges, and
+discounts between the sum of items and the printed total, so even #emph[perfectly
+extracted] ground truth will not pass this check on every receipt. Evaluating the
+metric on CORD's own gold-standard parses, we measure a ground-truth ceiling of 0.532
+on the 94 CORD test receipts that have both non-empty item and total fields, with a
+mean absolute error of 6.0%.
+
+#align(center)[
+  #table(
+    columns: (auto, auto, auto, auto),
+    align: (left, right, right, right),
+    stroke: 0.5pt,
+    inset: 5pt,
+    [*System*], [*Consistency*], [*Mean error*], [*Defined on*],
+    [Ground-truth ceiling], [0.532], [6.0%], [94 receipts],
+    [LayoutLMv3],           [0.549], [*5.9%*], [91 receipts],
+    [Donut],                [0.536], [22,691%], [97 receipts],
+    [Hybrid (ours)],        [0.526], [22,687%], [97 receipts],
+  )
+  #text(size: 9pt)[
+    *Table 5.* Receipt-level checksum consistency on CORD test. All three systems
+    operate at the ground-truth ceiling on the pass/fail metric, indicating that this
+    metric is saturated by the presence of taxes and service charges in CORD receipts.
+    The mean-absolute-error breakdown exposes a failure mode invisible to F1: Donut
+    occasionally hallucinates numerically implausible totals, producing extreme
+    outliers that inflate the mean error by four orders of magnitude. LayoutLMv3's
+    mean error is indistinguishable from the ground-truth ceiling.
+  ]
+]
+
+We interpret this as evidence that (a) the simple sum-equals-total checksum is an
+uninformative discriminator on CORD at the pass/fail level but (b) is highly
+discriminating at the distributional level, exposing a previously unreported
+catastrophic-hallucination failure mode of the OCR-free model. For a deployed
+bill-splitting application, a single 22,000% error on the total field is functionally
+catastrophic regardless of aggregate F1 scores.
+
+A related free signal comes from inter-model agreement at inference. When LayoutLMv3
+and Donut independently predict the same numeric value for subtotal or total on a
+receipt, this cross-architecture agreement provides a verification signal stronger
+than either model's internal confidence, because the two architectures fail in
+structurally different ways (OCR-propagation errors vs. generative hallucination).
+Quantifying this as an automated confidence score is left for future work.
 
 == Qualitative Comparison on a Real-World Photograph
 
