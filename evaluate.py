@@ -527,7 +527,43 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cached", action="store_true",
                         help="Reuse cached predictions if present.")
     parser.add_argument("--results-json", type=Path, default=Path("./eval-results.json"))
+    parser.add_argument("--wandb-project", default=None,
+                        help="If set, logs each system's final metrics as a separate "
+                             "Weights & Biases run under this project so the systems "
+                             "can be compared side-by-side on one dashboard.")
     return parser.parse_args()
+
+
+def log_to_wandb(project: str, system_name: str, metrics: Dict[str, Any]) -> None:
+    """Log one system's final metrics as a single W&B run with a descriptive name."""
+    try:
+        import wandb
+    except ImportError:
+        print(f"[wandb] not installed; skipping log for {system_name}.")
+        return
+
+    run = wandb.init(
+        project=project,
+        name=system_name,
+        job_type="evaluation",
+        reinit=True,
+        config={"system": system_name},
+    )
+    flat: Dict[str, float] = {}
+    # Per-field F1 (normalized + exact)
+    for matching in ("norm", "exact"):
+        for field, vals in metrics["per_field"][matching].items():
+            flat[f"f1/{matching}/{field}"] = vals["f1"]
+        flat[f"micro_f1/{matching}"] = metrics["micro"][matching]["f1"]
+        flat[f"line_item_match/{matching}"] = metrics["line_item"][matching]
+    flat["checksum/consistency_rate"] = metrics["checksum"]["consistency_rate"]
+    flat["checksum/mean_abs_error_pct"] = metrics["checksum"]["mean_abs_error_pct"]
+    flat["checksum/n_defined"] = metrics["checksum"]["n_defined"]
+
+    wandb.log(flat)
+    for k, v in flat.items():
+        wandb.run.summary[k] = v
+    run.finish()
 
 
 def main() -> None:
@@ -580,6 +616,12 @@ def main() -> None:
     print(format_table(all_results))
     args.results_json.write_text(json.dumps(all_results, indent=2))
     print(f"\nWrote {args.results_json}")
+
+    if args.wandb_project:
+        print(f"\nLogging each system to W&B project '{args.wandb_project}' ...")
+        for name, metrics in all_results.items():
+            log_to_wandb(args.wandb_project, name, metrics)
+        print("Done. Open the project in W&B to compare runs side-by-side.")
 
 
 if __name__ == "__main__":
