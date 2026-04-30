@@ -1,0 +1,287 @@
+% ============================================================
+% Project Outline — CSCI 5922, University of Colorado Boulder
+% Two-column, conference-style academic format
+% ============================================================
+\documentclass[9pt,twocolumn,twoside]{extarticle}
+
+% ---------- Packages ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}                    % Times font (standard for conference papers)
+\usepackage{microtype}                % Improved typography
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}                 % Professional tables
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{enumitem}                 % Compact lists
+\usepackage{titlesec}                 % Section formatting
+\usepackage{abstract}                 % Two-column abstract
+\usepackage{fancyhdr}                 % Headers/footers
+\usepackage{caption}                  % Caption formatting
+\usepackage[switch]{lineno}            % Line numbering (outer margins in twocolumn)
+
+% ---------- Page geometry (ECCV/LNCS-inspired, two-column) ----------
+\usepackage[
+  paperwidth=146mm,
+  paperheight=217mm,
+  top=12mm,
+  left=8mm,
+  right=8mm,
+  bottom=12mm,
+  columnsep=4.5mm
+]{geometry}
+
+% ---------- Hyperlink styling ----------
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black
+}
+
+% ---------- Section title formatting (LNCS-inspired) ----------
+\titleformat{\section}{\normalsize\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{8pt plus 2pt minus 2pt}{4pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{6pt plus 2pt minus 1pt}{2pt plus 1pt minus 1pt}
+
+% ---------- Compact lists ----------
+\setlist[itemize]{noitemsep,topsep=1pt,parsep=0pt,partopsep=0pt,leftmargin=*}
+\setlist[enumerate]{noitemsep,topsep=1pt,parsep=0pt,partopsep=0pt,leftmargin=*}
+
+% ---------- Compact paragraphs ----------
+\setlength{\parskip}{1pt plus 0.5pt minus 0.5pt}
+\setlength{\parindent}{1em}
+
+% ---------- Caption formatting ----------
+\captionsetup{font=small,labelfont=bf}
+
+% ---------- Header/footer (LNCS-inspired) ----------
+\newcommand{\runningtitle}{\vspace{-0.5cm}OCR-Free vs.\ OCR-Dependent Architectures for Item-Level Receipt Parsing}
+\newcommand{\runningauthors}{\vspace{-0.5cm}Ishneet Chadha and Manikandan Gunaseelan}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[LE]{\small\itshape \runningtitle}
+\fancyhead[RO]{\small\itshape \runningauthors}
+\fancyfoot[C]{\small\thepage}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyfoot[C]{\small\thepage}
+}
+
+% ---------- Title block (LNCS-inspired) ----------
+\title{%
+  \vspace{-2em}%
+  \textbf{\large OCR-Free vs.\ OCR-Dependent Architectures\\[2pt]
+  for Item-Level Receipt Parsing}\\[4pt]
+  {\small A Comparative Study for Automated Bill Splitting}%
+  \vspace{-0.5em}%
+}
+
+\author{%
+  Ishneet Chadha, Manikandan Gunaseelan\\[2pt]
+  {\small University of Colorado Boulder}\\
+  {\small Course CSCI 5922 --- Neural Networks and Deep Learning}\\[2pt]
+  % {\footnotesize\texttt{\{ishneet.chadha, manikandan.gunaseelan\}@colorado.edu}}
+}
+
+\date{}
+
+% ============================================================
+\begin{document}
+\maketitle
+\thispagestyle{plain}
+\renewcommand\linenumberfont{\normalfont\scriptsize\color{gray}}
+\linenumbers
+
+% ============================================================
+% ABSTRACT
+% ============================================================
+\leftlinenumbers
+\begin{onecolabstract}
+Splitting shared expenses fairly requires accurate extraction of individual line items and prices from receipt images---a task that current bill-splitting applications handle poorly due to their reliance on black-box OCR APIs. In this project, we propose a systematic comparison of two contrasting deep learning paradigms for item-level receipt parsing: an \emph{OCR-free} approach, represented by Donut, which maps raw image pixels directly to structured output via an end-to-end transformer; and an \emph{OCR-dependent} approach, represented by LayoutLMv3, which first extracts text using an external OCR engine and then classifies tokens into semantic fields using a multimodal transformer. We plan to evaluate both architectures on the CORD dataset with a focus on fine-grained, item-level extraction accuracy---a granularity that prior benchmarks have not emphasized---and further assess cross-dataset generalization on the ICDAR 2019 SROIE benchmark. Through quantitative metrics (entity-level F1, line-item matching accuracy, tree edit distance) and a qualitative error taxonomy, our goal is to provide evidence-based guidance on which architectural paradigm is better suited for practical, automated bill-splitting applications.
+\end{onecolabstract}
+\switchlinenumbers
+
+\smallskip
+\noindent\textbf{Keywords:} receipt parsing, optical character recognition, document understanding, Donut, LayoutLMv3, information extraction, bill splitting, deep learning
+\medskip
+
+% ============================================================
+% SECTION 1: INTRODUCTION
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+Splitting shared expenses is a ubiquitous social task that arises whenever groups of people dine out, travel together, or share household costs. While mobile applications such as Splitwise and Venmo have simplified the process of tracking who owes whom, they still require users to manually enter itemized amounts---a tedious and error-prone step that discourages adoption. A more desirable workflow would allow a user to simply photograph a receipt and have the system automatically extract each line item and its price, after which individuals can be assigned to specific items for fair, item-level splitting. Achieving this vision requires robust receipt information extraction, a task that sits at the intersection of computer vision, optical character recognition (OCR), and natural language understanding.
+
+Existing approaches to receipt understanding generally follow one of two paradigms. The first and more established paradigm is \emph{OCR-dependent}: a dedicated OCR engine first localizes and transcribes all text regions in the receipt image, and a downstream model then consumes these text tokens along with their spatial coordinates to classify each token into semantic categories~\cite{xu2020layoutlm, huang2022layoutlmv3}. This two-stage pipeline is effective but suffers from error propagation---if the OCR engine misreads a character or misaligns a bounding box, the downstream model inherits that mistake. The second, more recent paradigm is \emph{OCR-free}: an end-to-end model ingests the raw receipt image and directly produces structured output without an intermediate text-recognition step~\cite{kim2022donut}. While both paradigms have been benchmarked on receipt datasets, prior evaluations predominantly report aggregate accuracy on high-level fields such as the store name, date, and total amount~\cite{huang2019sroie, park2019cord}. Comparatively little attention has been paid to \emph{item-level} extraction---that is, correctly identifying every individual menu item and its associated price---which is precisely what a bill-splitting application requires.
+
+In this work, we propose to conduct a systematic comparison of OCR-free and OCR-dependent architectures specifically evaluated on item-level receipt parsing. We plan to select Donut~\cite{kim2022donut} as a representative OCR-free model and LayoutLMv3~\cite{huang2022layoutlmv3} as a representative OCR-dependent model, and evaluate both on the CORD dataset~\cite{park2019cord}, which provides fine-grained annotations for individual menu items, prices, and subtotals. We further intend to conduct a cross-dataset generalization experiment using the ICDAR 2019 SROIE benchmark~\cite{huang2019sroie} to assess robustness to unseen receipt templates. Our anticipated contribution is twofold: (1)~we aim to provide the first head-to-head comparison of these two paradigms at the item level rather than at the document level, and (2)~we plan to perform an error analysis that identifies the specific failure modes of each architecture (e.g., misaligned prices, merged line items, hallucinated text), offering practical guidance for which approach is better suited to downstream bill-splitting applications.
+
+% ============================================================
+% SECTION 2: RELATED WORK
+% ============================================================
+\section{Related Work}
+\label{sec:related}
+
+We identify four clusters of related work that inform our study.
+
+\smallskip\noindent\textbf{Topic 1: Receipt OCR and Information Extraction Benchmarks.}
+The ICDAR 2019 SROIE competition~\cite{huang2019sroie} introduced a benchmark of 1{,}000 scanned receipt images annotated for text localization, OCR, and key information extraction (company, date, address, total). The CORD dataset~\cite{park2019cord} expanded on this with over 11{,}000 Indonesian receipt images annotated with 30 semantic classes organized into five superclasses (menu, void menu, subtotal, void total, total). More recently, the WildReceipt dataset~\cite{sun2021sdmgr} contributed 1{,}768 receipt images with 25 key-value categories specifically designed to evaluate generalization to unseen receipt templates. \emph{Our proposed work differs from these benchmarks} in that we do not intend to propose a new dataset; rather, we plan to leverage existing benchmarks (primarily CORD and SROIE) to conduct a controlled architectural comparison focused specifically on item-level extraction accuracy, a granularity that prior benchmark papers did not emphasize.
+
+\smallskip\noindent\textbf{Topic 2: OCR-Dependent Document Understanding Models.}
+LayoutLM~\cite{xu2020layoutlm} pioneered the joint pre-training of text, layout, and image features for document understanding, achieving strong results on form and receipt extraction tasks. Subsequent iterations---LayoutLMv2~\cite{xu2021layoutlmv2} and LayoutLMv3~\cite{huang2022layoutlmv3}---introduced improved pre-training objectives and unified text-image masking strategies, achieving state-of-the-art results on the CORD and FUNSD benchmarks. The SDMG-R method~\cite{sun2021sdmgr} took an alternative approach by modeling documents as dual-modality graphs with spatial reasoning over text regions. All of these methods depend on an external OCR engine to first extract text and bounding boxes. \emph{Our proposed work differs from these approaches} in that we intend to directly compare the OCR-dependent paradigm against an OCR-free alternative on the same task and dataset, isolating the impact of the OCR preprocessing step on item-level accuracy.
+
+\smallskip\noindent\textbf{Topic 3: OCR-Free Document Understanding Models.}
+Donut~\cite{kim2022donut} proposed an end-to-end transformer that encodes document images using a Swin Transformer~\cite{liu2021swin} vision encoder and decodes structured output using a BART-based text decoder, entirely bypassing OCR. Donut demonstrated competitive or superior performance on document classification, information extraction, and visual question answering tasks. Pix2Struct~\cite{lee2023pix2struct} extended this idea by pre-training on web page screenshots to learn visual-textual grounding. \emph{Our proposed work differs from these approaches} in that we plan to evaluate Donut not on its typical aggregate metrics but specifically on the challenging task of extracting every individual line item and price from a receipt---a fine-grained evaluation that has not been the focus of prior OCR-free model papers.
+
+\smallskip\noindent\textbf{Topic 4: Receipt Scanning for Bill-Splitting Applications.}
+Several mobile applications and open-source projects have implemented receipt-scanning bill splitters, including OCRcpt~\cite{ocrcpt}, Receipt Hacker~\cite{receipthacker}, and the commercial apps Splitr and ReceiptSplit. These systems typically rely on third-party OCR APIs (e.g., Google Vision, Google ML Kit) as black boxes and do not conduct systematic evaluations of extraction accuracy or compare architectural choices. \emph{Our proposed work differs from these application-oriented efforts} in that we aim to provide a rigorous, reproducible comparison of the underlying deep learning architectures, offering evidence-based guidance for which model pipeline a bill-splitting application should adopt.
+
+% ============================================================
+% SECTION 3: METHODS
+% ============================================================
+\section{Methods}
+\label{sec:methods}
+
+Our proposed methodology centers on a controlled comparison of two representative architectures---one OCR-free and one OCR-dependent---evaluated under identical data conditions for item-level receipt parsing. Below, we describe our planned setup in sufficient detail for reproducibility.
+
+\subsection{Dataset and Preprocessing}
+\label{sec:data}
+
+We plan to use the CORD (Consolidated Receipt Dataset)~\cite{park2019cord} as our primary dataset. CORD contains 800 training, 100 validation, and 100 test receipt images, each annotated with bounding boxes, transcribed text, and 30 semantic labels organized into five superclasses. For our item-level evaluation, we intend to focus on the \texttt{menu.nm} (item name), \texttt{menu.price} (item price), \texttt{menu.cnt} (item count), \texttt{sub\_total.subtotal\_price}, and \texttt{total.total\_price} fields, as these are the fields directly relevant to bill splitting. All images will be resized to the input resolution expected by each model ($1280{\times}960$ for Donut; $224{\times}224$ for LayoutLMv3) with aspect-ratio-preserving padding where necessary.
+
+As a secondary evaluation set, we plan to use the ICDAR 2019 SROIE benchmark~\cite{huang2019sroie}, which contains 600 training and 400 test receipt images annotated with four high-level fields (company, date, address, total). Since SROIE does not provide item-level annotations, we intend to use it exclusively for a cross-dataset generalization analysis on the total-amount field to assess how well models trained on CORD transfer to structurally different receipts.
+
+\subsection{Model 1: Donut (OCR-Free)}
+\label{sec:donut}
+
+Donut~\cite{kim2022donut} employs a Swin Transformer~\cite{liu2021swin} as a visual encoder that converts the input image into a sequence of patch embeddings, followed by a BART-based autoregressive decoder that generates a structured JSON-like output sequence token by token. The model is pre-trained on the IIT-CDIP and SynthDoG synthetic document datasets. We plan to start from the publicly available \texttt{naver-clova-ix/donut-base} checkpoint on Hugging Face and fine-tune it on the CORD training set. Our initial training plan is to experiment with approximately 30 epochs, a learning rate in the range of $1 \times 10^{-5}$, batch size~2, and the AdamW optimizer; however, we will tune these hyperparameters based on validation set performance. The decoder will be prompted with a task-specific start token that instructs it to output the item-level parse. We selected Donut as our OCR-free candidate because it represents the state of the art in OCR-free document understanding as of ECCV 2022, and its code and weights are fully open-source, enabling reproducibility.
+
+\subsection{Model 2: LayoutLMv3 (OCR-Dependent)}
+\label{sec:layoutlm}
+
+LayoutLMv3~\cite{huang2022layoutlmv3} is a multimodal transformer that jointly encodes three modalities: (1)~text tokens produced by an external OCR engine, (2)~the 2D spatial positions (bounding box coordinates) of those tokens, and (3)~image patch embeddings from the document image. It is pre-trained with masked language modeling, masked image modeling, and a word-patch alignment objective. For the OCR preprocessing step, we plan to use Tesseract~v5 to extract word-level bounding boxes and text from each receipt image. We will then fine-tune the \texttt{microsoft/layoutlmv3-base} checkpoint on CORD for token classification, where each OCR-detected token is assigned one of the 30 CORD semantic labels. Our initial plan is to experiment with approximately 50 training epochs, a learning rate around $5 \times 10^{-5}$, batch size~8, and the AdamW optimizer, adjusting these hyperparameters as needed based on validation performance. We selected LayoutLMv3 as our OCR-dependent candidate because it is the current state-of-the-art model in this paradigm and has published baselines on both CORD and FUNSD, facilitating direct comparison with prior work.
+
+\subsection{Item-Level Parsing Pipeline}
+\label{sec:pipeline}
+
+After each model produces its raw predictions, we plan to apply a lightweight post-processing step to group extracted fields into structured line items. For Donut, the decoder output is a JSON-like token sequence that we will parse into item records (name, price, count). For LayoutLMv3, we intend to group adjacent tokens sharing the same semantic label and use vertical proximity ($y$-coordinate overlap) to associate item names with their corresponding prices on the same receipt line. This grouping logic will be kept identical for both models to ensure a fair comparison. The final output for each receipt will be a list of \texttt{(item\_name, item\_price)} tuples that can be directly consumed by a bill-splitting interface.
+
+% ============================================================
+% SECTION 4: EXPERIMENTS
+% ============================================================
+\section{Experiments}
+\label{sec:experiments}
+
+We plan to conduct two experiments to validate our contributions.
+
+\subsection{Experiment 1: Item-Level Extraction Accuracy on CORD}
+\label{sec:exp1}
+
+\noindent\textbf{Main purpose.}
+The primary experiment compares Donut and LayoutLMv3 on the task of extracting individual menu items and their prices from receipt images in the CORD test set. This experiment directly addresses our central research question: which architectural paradigm---OCR-free or OCR-dependent---achieves higher accuracy at the item level, and where does each model fail?
+
+\smallskip\noindent\textbf{Evaluation metrics.}
+We report the following metrics, computed at the item level:
+
+\begin{itemize}
+    \item \textbf{Entity-level F1 score:} For each semantic field (\texttt{menu.nm}, \texttt{menu.price}, \texttt{menu.cnt}, \texttt{sub\_total.subtotal\_price}, \texttt{total.total\_price}), we compute precision, recall, and F1 by comparing predicted field values against ground-truth annotations using exact string matching. We also report a \emph{normalized} variant that strips whitespace and lowercases text before comparison. We choose F1 because it balances precision and recall, and it is the standard metric used in prior CORD evaluations~\cite{park2019cord, kim2022donut, huang2022layoutlmv3}, enabling direct comparison with published results.
+
+    \item \textbf{Line-item matching accuracy:} We define a line item as correctly extracted if and only if both its item name and its price are correctly predicted and correctly associated with each other. This metric captures the end-to-end accuracy that matters for bill splitting---a correctly recognized item name paired with the wrong price is useless. We report the percentage of ground-truth line items that are correctly matched.
+
+    \item \textbf{Tree edit distance (TED):} Following prior work on structured document parsing, we compute the normalized tree edit distance between the predicted parse tree and the ground-truth parse tree for each receipt. This metric captures structural errors (e.g., merging two line items into one, or splitting a single item across two entries) that entity-level F1 may miss.
+\end{itemize}
+
+In addition to quantitative metrics, we will perform a qualitative error analysis on a random sample of 50 receipts from the test set. For each model, we will categorize errors into types such as: (a)~OCR misread (character-level errors), (b)~price misalignment (correct item name but wrong price associated), (c)~missing items (item present in image but not extracted), (d)~hallucinated items (item extracted but not present in image), and (e)~structural errors (items merged or split incorrectly). This taxonomy will provide actionable insights into which failure modes are more prevalent in each paradigm.
+
+\subsection{Experiment 2: Cross-Dataset Generalization}
+\label{sec:exp2}
+
+\noindent\textbf{Main purpose.}
+The second experiment evaluates how well models trained on CORD generalize to a structurally different receipt dataset (SROIE) without additional fine-tuning. This tests robustness to distribution shift---a critical property for a real-world bill-splitting application that must handle receipts from diverse restaurants, countries, and point-of-sale systems.
+
+\smallskip\noindent\textbf{Evaluation metrics.}
+Since SROIE does not provide item-level annotations, we evaluate on the four SROIE key fields: company name, date, address, and total amount. We report:
+
+\begin{itemize}
+    \item \textbf{Field-level F1 score:} Precision, recall, and F1 for each of the four fields, using exact match and normalized match. This allows us to assess whether the models have learned general receipt-understanding capabilities or have overfit to the visual style of CORD's Indonesian receipts.
+
+    \item \textbf{Total amount accuracy:} Since the total amount is the most critical field for bill splitting (it serves as a checksum against the sum of extracted item prices), we report exact-match accuracy specifically for this field. We choose this metric because even a single incorrect digit renders the extraction unreliable for financial applications.
+\end{itemize}
+
+Together, these two experiments will provide a comprehensive picture of (1)~which architecture is better for fine-grained, item-level extraction and (2)~which architecture generalizes more robustly to unseen receipt formats---both essential considerations for deploying a receipt-scanning bill splitter in practice.
+
+% ============================================================
+% BIBLIOGRAPHY
+% ============================================================
+{\small
+\begin{thebibliography}{11}
+
+\bibitem{kim2022donut}
+Kim, G., Hong, T., Yim, M., Nam, J., Park, J., Yim, J., Hwang, W., Yun, S., Han, D., Park, S.:
+{OCR}-Free Document Understanding Transformer.
+In: European Conference on Computer Vision (ECCV), pp.~498--517. Springer (2022)
+
+\bibitem{huang2022layoutlmv3}
+Huang, Y., Lv, T., Cui, L., Lu, Y., Wei, F.:
+{LayoutLMv3}: Pre-training for Document {AI} with Unified Text and Image Masking.
+In: Proc.\ 30th ACM Int.\ Conf.\ on Multimedia, pp.~4083--4091. ACM (2022)
+
+\bibitem{xu2020layoutlm}
+Xu, Y., Li, M., Cui, L., Huang, S., Wei, F., Zhou, M.:
+{LayoutLM}: Pre-training of Text and Layout for Document Image Understanding.
+In: Proc.\ 26th ACM SIGKDD Conf., pp.~1192--1200. ACM (2020)
+
+\bibitem{xu2021layoutlmv2}
+Xu, Y., Xu, Y., Lv, T., Cui, L., Wei, F., Wang, G., Lu, Y., Florencio, D., Zhang, C., Che, W., et~al.:
+{LayoutLMv2}: Multi-modal Pre-training for Visually-rich Document Understanding.
+In: Proc.\ 59th Annual Meeting of the ACL, pp.~2579--2591 (2021)
+
+\bibitem{park2019cord}
+Park, S., Shin, S., Lee, B., Lee, J., Surh, J., Seo, M., Lee, H.:
+{CORD}: A Consolidated Receipt Dataset for Post-{OCR} Parsing.
+In: Document Intelligence Workshop at NeurIPS (2019)
+
+\bibitem{huang2019sroie}
+Huang, Z., Chen, K., He, J., Bai, X., Karatzas, D., Lu, S., Jawahar, C.V.:
+{ICDAR2019} Competition on Scanned Receipt {OCR} and Information Extraction.
+In: Int.\ Conf.\ on Document Analysis and Recognition (ICDAR), pp.~1516--1520. IEEE (2019)
+
+\bibitem{sun2021sdmgr}
+Sun, H., Kuang, Z., Yue, X., Lin, C., Zhang, W.:
+Spatial Dual-Modality Graph Reasoning for Key Information Extraction.
+arXiv preprint arXiv:2103.14470 (2021)
+
+\bibitem{liu2021swin}
+Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., Guo, B.:
+Swin Transformer: Hierarchical Vision Transformer Using Shifted Windows.
+In: Proc.\ IEEE/CVF Int.\ Conf.\ on Computer Vision (ICCV), pp.~10012--10022 (2021)
+
+\bibitem{lee2023pix2struct}
+Lee, K., Joshi, M., Turc, I., Hu, H., Liu, F., Eisenschlos, J., Khandelwal, U., Shaw, P., Chang, M.W., Toutanova, K.:
+{Pix2Struct}: Screenshot Parsing as Pretraining for Visual Language Understanding.
+In: Int.\ Conf.\ on Machine Learning (ICML), pp.~18893--18912 (2023)
+
+\bibitem{ocrcpt}
+Hu, C.:
+{OCRcpt}: Receipt Reader and Bill Splitting {iOS} App Using {OCR} via {Google Vision API}.
+\url{https://github.com/coreyhu/OCRcpt} (2020)
+
+\bibitem{receipthacker}
+Won, B.:
+Receipt Hacker: Mobile App for Instant Receipt-Based Cost Splitting.
+\url{https://github.com/brendawon/receipt-hacker} (2021)
+
+\end{thebibliography}
+}
+
+\end{document}

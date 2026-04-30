@@ -1,0 +1,234 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Research Poster — CSCI 5922 Final Project
+% CHEF: A Hybrid Recipe for Item-Level Receipt Parsing
+% Ishneet Chadha, Manikandan Gunaseelan
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[landscape,a0paper,fontscale=0.30]{baposter}
+
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\setlist{nolistsep,leftmargin=3.5mm,topsep=2pt,partopsep=0pt}
+\usepackage{palatino}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{tikz}
+\usetikzlibrary{fit,shapes,arrows,positioning}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multicol}
+\setlength{\columnsep}{1em}
+\setlength{\columnseprule}{0mm}
+
+\newcommand{\compresslist}{
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+}
+
+\definecolor{CUgold}{RGB}{207,184,124}
+\definecolor{lightgray}{RGB}{240,240,240}
+\definecolor{wingreen}{RGB}{200,235,205}
+\definecolor{lossred}{RGB}{250,220,220}
+
+\begin{document}
+
+\begin{poster}
+{
+headerborder=closed,
+colspacing=1em,
+bgColorOne=white,
+bgColorTwo=white,
+borderColor=black,
+headerColorOne=CUgold,
+headerColorTwo=CUgold,
+headerFontColor=black,
+boxColorOne=white,
+textborder=roundedleft,
+eyecatcher=true,
+headerheight=0.13\textheight,
+headershape=roundedright,
+headerfont=\Large\bf\textsc,
+linewidth=2pt
+}
+{\hspace{1.8cm}\includegraphics[scale=.19]{Figures/cu.png}}
+{\hspace{-.2cm}\bf\textsc{CHEF: A Hybrid Recipe for Item-Level Receipt Parsing}\vspace{0.2em}}
+{\hspace{-0.0cm}\textit{OCR-Free vs.\ OCR-Dependent Architectures for Automated Bill Splitting}\\
+Ishneet Chadha, Manikandan Gunaseelan \quad | \quad
+CSCI 5922 — Neural Networks and Deep Learning, University of Colorado Boulder}
+{\includegraphics[scale=.18]{Figures/CU_logo.png}\hspace{2.3cm}}
+
+\headerbox{Motivation \& Approach}{name=motivation,column=0,row=0, span=2}{
+Bill-splitting apps still require users to manually type every itemized amount.
+A photographed-receipt pipeline that extracts each line item and price would close
+that gap, but requires \emph{item-level} extraction — not the document-level fields
+most receipt benchmarks emphasize.
+\smallskip
+
+\textbf{Two competing paradigms:}
+\begin{itemize}\compresslist
+\item \textbf{OCR-dependent} (LayoutLMv3): OCR engine $\rightarrow$ multimodal token
+classifier. Risks \emph{error propagation} from OCR.
+\item \textbf{OCR-free} (Donut): pixels $\rightarrow$ JSON, no OCR.
+Risks \emph{hallucination} but bypasses OCR errors.
+\end{itemize}
+
+\textbf{We ask:} (1) Which paradigm wins on CORD? (2) How much of the score is the
+model vs.\ the OCR? (3) Can we \emph{compose} them?
+We propose \textbf{CHEF} (\textbf{C}omposed \textbf{H}ybrid for \textbf{E}xtraction \&
+\textbf{F}ield-routing) — a field-routed composition that takes the winning model
+per field.
+}
+
+\headerbox{Methods}{name=methods,column=2,row=0, span=2}{
+\begin{itemize}\compresslist
+\item \textbf{LayoutLMv3} (Microsoft) — Tesseract v5 + multimodal transformer +
+\textbf{BIO} token classification over 5 CORD fields. Fine-tuned by us on a MacBook
+Air (MPS, frozen visual backbone, 8 epochs).
+\item \textbf{Donut} (Naver) — Swin encoder + BART decoder generates JSON directly.
+We use \texttt{naver-clova-ix/donut-base-finetuned-cord-v2}.
+\item \textbf{CHEF (ours)} — line items $\leftarrow$ LayoutLMv3,
+aggregates $\leftarrow$ Donut. Field routing only — no retraining.
+\end{itemize}
+
+\textbf{Metrics:} entity-level F1, micro-F1, line-item matching accuracy, and a novel
+\emph{checksum consistency} (does $\sum$items $=$ total $\pm 5\%$?). Tracked with
+Weights \& Biases.
+}
+
+\headerbox{Headline Results — CORD Test ($n{=}100$)}{name=results,column=0, below=motivation, span=2}{
+\centering
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Field} & \textbf{LayoutLMv3} & \textbf{Donut} & \textbf{CHEF} \\
+\midrule
+\rowcolor{wingreen}\texttt{menu.nm}                & \textbf{0.899} & 0.791 & \textbf{0.899} \\
+\rowcolor{wingreen}\texttt{menu.price}             & \textbf{0.968} & 0.866 & \textbf{0.968} \\
+\rowcolor{wingreen}\texttt{menu.cnt}               & \textbf{0.980} & 0.968 & \textbf{0.980} \\
+\rowcolor{lightgray}\texttt{subtotal\_price}       & 0.882 & \textbf{0.901} & \textbf{0.901} \\
+\rowcolor{lightgray}\texttt{total\_price}          & 0.898 & \textbf{0.917} & \textbf{0.917} \\
+\midrule
+\textbf{Micro F1}             & 0.937 & 0.878 & \textbf{0.940} \\
+\textbf{Line-item matching}   & 0.886 & 0.732 & \textbf{0.886} \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright \textbf{Complementary strengths:} LayoutLMv3 wins per-item fields
+(\textcolor{green!50!black}{green}); Donut wins aggregates
+(\textcolor{gray!70!black}{gray}). \textbf{CHEF strictly beats both.}
+}
+
+\headerbox{OCR-Source Ablation: How Much Was the OCR?}{name=ocr_ablation,column=2, below=methods, span=2}{
+The 0.937 score uses CORD's \emph{human-verified} word boxes. Swap in real Tesseract
+— same model, same images, same metrics:
+
+\smallskip
+\centering
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lrr}
+\toprule
+\textbf{System} & \textbf{Micro F1} & \textbf{Line-item} \\
+\midrule
+LayoutLMv3 + \emph{gold} OCR        & \textbf{0.937} & \textbf{0.886} \\
+\rowcolor{lossred}LayoutLMv3 + Tesseract & 0.314 & 0.061 \\
+Donut (no OCR)                      & 0.878 & 0.732 \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright
+$\bullet$ Tesseract drops LayoutLMv3 by \textbf{0.62 micro-F1.} \\
+$\bullet$ \textbf{${\sim}2/3$ of the headline score was the OCR}, not the model. \\
+$\bullet$ With realistic OCR, \textbf{Donut wins by 0.564.} \\
+$\bullet$ Standard CORD scores for OCR-dependent models = \textbf{upper bounds on deployable performance.}
+}
+
+\headerbox{Ablations: Routing Direction \& Label Construction}{name=ablations,column=0, below=results, span=2}{
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{Routing direction (negative control).}
+We reverse CHEF: items $\leftarrow$ Donut, aggregates $\leftarrow$ LayoutLMv3.
+If \emph{ensembling} alone caused the gain, reversed CHEF would also beat both.
+It does not.
+
+\smallskip
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{System} & \textbf{Micro F1} \\
+\midrule
+LayoutLMv3 alone                  & 0.937 \\
+Donut alone                       & 0.878 \\
+\rowcolor{wingreen}\textbf{CHEF (ours)}       & \textbf{0.940} \\
+\rowcolor{lossred}CHEF (reversed)             & 0.874 \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright \footnotesize Routing direction \emph{itself} is the source of the gain,
+not the act of combining models.
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{Label construction (\texttt{is\_key} fix).}
+CORD marks key tokens (e.g.\ ``TOTAL'') with \texttt{is\_key=1}. Initially we labeled
+keys and values identically — the model emitted ``\texttt{TOTAL 60.000}'' instead of
+``\texttt{60.000}''. Filtering keys to background:
+
+\smallskip
+\centering
+\begin{tabular}{lrr}
+\toprule
+\textbf{Variant} & \textbf{Micro} & \textbf{total F1} \\
+\midrule
+no \texttt{is\_key} filter       & 0.787 & 0.010 \\
+\rowcolor{wingreen}with filter   & \textbf{0.937} & \textbf{0.898} \\
+\midrule
+$\Delta$ & \textbf{+0.150} & \textbf{+0.888} \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\raggedright \footnotesize A 3-line change to the label pipeline accounts for
++0.150 absolute micro-F1.
+\end{minipage}
+}
+
+\headerbox{Real-World Test \& Conclusions}{name=conclusions,column=2, below=ocr_ablation, span=2}{
+\textbf{Real-world receipt photos.}
+\begin{itemize}\compresslist
+\item \texttt{bill.png} (Kroger): Tesseract reads ``TOTAL'' as \texttt{TOVAL};
+LayoutLMv3 output is unusable. Donut recovers \texttt{KOROGER EGOS}, \texttt{ROMANE
+TEATCUE}, etc.\ with plausible prices.
+\item \texttt{bill2.png} (India Bazaar): CHEF extracts 5 prices
+summing to \$34.71 — \emph{matching the predicted subtotal exactly.} Both models
+agree on subtotal and total. \textbf{Cross-architecture agreement = a free
+verification signal.}
+\end{itemize}
+
+\smallskip
+\textbf{Checksum consistency.} Even CORD's own ground truth only passes
+$\sum$items$=$total at $\sim$53\% (real receipts have tax/fees). All systems sit at
+this ceiling, but \emph{mean absolute error} discriminates: LayoutLMv3 = 5.9\%,
+Donut = \textbf{22{,}691\%} — Donut occasionally hallucinates totals four orders of
+magnitude wrong, a failure invisible to F1.
+
+\smallskip
+\textbf{Conclusions:}
+\begin{enumerate}\compresslist
+\item Receipt parsing is a \emph{composite task}; line items reward token
+classification, aggregates reward schema-constrained generation.
+\item \textbf{CHEF is principled, not ad-hoc} — proven by the reversed-routing control.
+\item OCR substitution reframes the literature: standard CORD scores
+\textbf{overstate deployable OCR-dependent performance by $\sim 0.62$ F1.}
+\end{enumerate}
+
+\centering \small \textbf{Code:} \texttt{github.com/ishneet42/receipt-parsing}
+}
+
+\end{poster}
+\end{document}
